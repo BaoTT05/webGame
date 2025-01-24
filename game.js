@@ -149,10 +149,11 @@ class Game {
 
     // Let's generate a 10×10 "cell" maze,
     // which becomes a 21×21 tile map (with outer walls, etc.)
-    this.mapLayout = generatePerfectMaze(10, 10);
+    //PERHAPS WE CAN MAKE THIS AS A DIFFICULTY LEVEL BY CHANGING THE ENTITIES HEALTH AND INCREASE MAZE SIZE
+    this.mapLayout = generatePerfectMaze(44, 44);
 
-    this.MAP_ROWS = this.mapLayout.length;       // e.g. 21
-    this.MAP_COLS = this.mapLayout[0].length;    // e.g. 21
+    this.MAP_ROWS = this.mapLayout.length;       
+    this.MAP_COLS = this.mapLayout[0].length;    
     this.mapWidth  = this.MAP_COLS * this.TILE_SIZE;
     this.mapHeight = this.MAP_ROWS * this.TILE_SIZE;
 
