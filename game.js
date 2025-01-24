@@ -1,93 +1,7 @@
+// game.js
 console.log("Loaded game.js!");
-// Maze Generation: Depth-First Search (Perfect Maze). Uses 1 and 0's for wall.
-function generatePerfectMaze(cellRows, cellCols) {
 
-  const rows = 2 * cellRows + 1;
-  const cols = 2 * cellCols + 1;
-
-  // Initialize all walls
-  const maze = Array.from({ length: rows }, () =>
-    Array(cols).fill(1)
-  );
-
-  // Mark each "cell" position as 0 floor (but keep walls around it),
-  // i.e. each cell center is (2*r+1, 2*c+1).
-  for (let r = 0; r < cellRows; r++) {
-    for (let c = 0; c < cellCols; c++) {
-      maze[2 * r + 1][2 * c + 1] = 0;
-    }
-  }
-
-  // We'll do a classic DFS over the "logical" cell grid
-  // visited array for the cellRows x cellCols
-  const visited = Array.from({ length: cellRows }, () =>
-    Array(cellCols).fill(false)
-  );
-
-  // Random start
-  const startRow = Math.floor(Math.random() * cellRows);
-  const startCol = Math.floor(Math.random() * cellCols);
-
-  visited[startRow][startCol] = true;
-  const stack = [[startRow, startCol]];
-
-  // Helper to get unvisited neighbors
-  function getUnvisitedNeighbors(r, c) {
-    const neighbors = [];
-    // up
-    if (r > 0 && !visited[r - 1][c]) neighbors.push([r - 1, c]);
-    // down
-    if (r < cellRows - 1 && !visited[r + 1][c]) neighbors.push([r + 1, c]);
-    // left
-    if (c > 0 && !visited[r][c - 1]) neighbors.push([r, c - 1]);
-    // right
-    if (c < cellCols - 1 && !visited[r][c + 1]) neighbors.push([r, c + 1]);
-    return neighbors;
-  }
-
-  while (stack.length > 0) {
-    const [cr, cc] = stack[stack.length - 1];
-    const neighbors = getUnvisitedNeighbors(cr, cc);
-
-    if (neighbors.length === 0) {
-      // backtrack
-      stack.pop();
-    } else {
-      // pick a random neighbor
-      const [nr, nc] = neighbors[Math.floor(Math.random() * neighbors.length)];
-      visited[nr][nc] = true;
-      stack.push([nr, nc]);
-
-      // carve passage between (cr, cc) and (nr, nc)
-      // in "maze" coordinates:
-      const row1 = 2 * cr + 1;
-      const col1 = 2 * cc + 1;
-      const row2 = 2 * nr + 1;
-      const col2 = 2 * nc + 1;
-
-      // If they're in the same column, the difference is in row
-      if (nr === cr - 1) {
-        // neighbor is above current
-        maze[row1 - 1][col1] = 0;
-      } else if (nr === cr + 1) {
-        // neighbor is below
-        maze[row1 + 1][col1] = 0;
-      } else if (nc === cc - 1) {
-        // neighbor left
-        maze[row1][col1 - 1] = 0;
-      } else if (nc === cc + 1) {
-        // neighbor right
-        maze[row1][col1 + 1] = 0;
-      }
-    }
-  }
-
-  // Return the final array (1=wall, 0=floor)
-  return maze;
-}
-
-// Camera Class. This is to make it so the player entities to be in the middle.
-
+// Camera Class
 class Camera {
   constructor(viewWidth, viewHeight, mapWidth, mapHeight) {
     this.x = 0;
@@ -110,7 +24,7 @@ class Camera {
         this.x = this.mapWidth - this.viewWidth;
       }
     } else {
-      this.x = Math.max((this.mapWidth - this.viewWidth)/2, 0);
+      this.x = Math.max((this.mapWidth - this.viewWidth) / 2, 0);
     }
 
     // Clamp vertically
@@ -120,12 +34,12 @@ class Camera {
         this.y = this.mapHeight - this.viewHeight;
       }
     } else {
-      this.y = Math.max((this.mapHeight - this.viewHeight)/2, 0);
+      this.y = Math.max((this.mapHeight - this.viewHeight) / 2, 0);
     }
   }
 }
 
-// 3) Game Class
+// Game Class
 class Game {
   constructor() {
     // Grab canvas
@@ -134,14 +48,12 @@ class Game {
 
     this.TILE_SIZE = 32;
 
-    // Let's generate a 10×10 "cell" maze,
-    // which becomes a 21×21 tile map (with outer walls, etc.)
-    //PERHAPS WE CAN MAKE THIS AS A DIFFICULTY LEVEL BY CHANGING THE ENTITIES HEALTH AND INCREASE MAZE SIZE
+    // Generate Maze (from generatePerfectMaze function)
     this.mapLayout = generatePerfectMaze(44, 44);
 
-    this.MAP_ROWS = this.mapLayout.length;       
-    this.MAP_COLS = this.mapLayout[0].length;    
-    this.mapWidth  = this.MAP_COLS * this.TILE_SIZE;
+    this.MAP_ROWS = this.mapLayout.length;
+    this.MAP_COLS = this.mapLayout[0].length;
+    this.mapWidth = this.MAP_COLS * this.TILE_SIZE;
     this.mapHeight = this.MAP_ROWS * this.TILE_SIZE;
 
     // Player starts near top-left corridor (e.g. tile (1,1))
@@ -184,7 +96,7 @@ class Game {
   }
 
   init() {
-    console.log("Window onload fired! Starting game...");
+    console.log("Game init fired! Starting game...");
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowUp" || e.key === "w") this.keys.up = true;
@@ -196,6 +108,7 @@ class Game {
         console.log("Interact pressed (stub).");
       }
     });
+
     document.addEventListener("keyup", (e) => {
       if (e.key === "ArrowUp" || e.key === "w") this.keys.up = false;
       if (e.key === "ArrowDown" || e.key === "s") this.keys.down = false;
@@ -212,8 +125,7 @@ class Game {
 
     // Debug log
     console.log(
-      `camera=(${this.camera.x.toFixed(0)},${this.camera.y.toFixed(0)}), ` +
-      `player=(${this.player.x.toFixed(0)},${this.player.y.toFixed(0)})`
+      `camera=(${this.camera.x.toFixed(0)},${this.camera.y.toFixed(0)}), player=(${this.player.x.toFixed(0)},${this.player.y.toFixed(0)})`
     );
 
     requestAnimationFrame(() => this.gameLoop());
@@ -222,13 +134,14 @@ class Game {
   update() {
     this.player.dx = 0;
     this.player.dy = 0;
-    if (this.keys.up)    this.player.dy = -this.player.speed;
-    if (this.keys.down)  this.player.dy =  this.player.speed;
-    if (this.keys.left)  this.player.dx = -this.player.speed;
-    if (this.keys.right) this.player.dx =  this.player.speed;
 
-    let newX = this.player.x + this.player.dx;
-    let newY = this.player.y + this.player.dy;
+    if (this.keys.up) this.player.dy = -this.player.speed;
+    if (this.keys.down) this.player.dy = this.player.speed;
+    if (this.keys.left) this.player.dx = -this.player.speed;
+    if (this.keys.right) this.player.dx = this.player.speed;
+
+    const newX = this.player.x + this.player.dx;
+    const newY = this.player.y + this.player.dy;
 
     // Collision
     if (!this.hitsWall(newX, this.player.y, this.player.width, this.player.height)) {
@@ -301,7 +214,7 @@ class Game {
 
     this.ctx.restore();
 
-    // Fog of War (uncomment if you want)
+    // Fog of War (optional)
     /*
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -320,15 +233,15 @@ class Game {
 
   // Collision: treat 1 as wall, 0 as floor
   hitsWall(xPos, yPos, w, h) {
-    const leftTile   = Math.floor(xPos / this.TILE_SIZE);
-    const rightTile  = Math.floor((xPos + w - 1) / this.TILE_SIZE);
-    const topTile    = Math.floor(yPos / this.TILE_SIZE);
+    const leftTile = Math.floor(xPos / this.TILE_SIZE);
+    const rightTile = Math.floor((xPos + w - 1) / this.TILE_SIZE);
+    const topTile = Math.floor(yPos / this.TILE_SIZE);
     const bottomTile = Math.floor((yPos + h - 1) / this.TILE_SIZE);
 
     return (
-      this.isWallTile(topTile, leftTile)   ||
-      this.isWallTile(topTile, rightTile)  ||
-      this.isWallTile(bottomTile, leftTile)||
+      this.isWallTile(topTile, leftTile) ||
+      this.isWallTile(topTile, rightTile) ||
+      this.isWallTile(bottomTile, leftTile) ||
       this.isWallTile(bottomTile, rightTile)
     );
   }
@@ -338,13 +251,10 @@ class Game {
     if (r < 0 || r >= this.MAP_ROWS || c < 0 || c >= this.MAP_COLS) {
       return true;
     }
-    return (this.mapLayout[r][c] === 1);
+    return this.mapLayout[r][c] === 1;
   }
 }
 
-//START GAME
-window.onload = () => {
-  console.log("Window onload fired!");
-  const game = new Game();
-  game.init();
-};
+// Expose classes to the global scope (if not using modules)
+window.Camera = Camera;
+window.Game = Game;
