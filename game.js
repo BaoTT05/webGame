@@ -1,62 +1,21 @@
-// game.js
 console.log("Loaded game.js!");
 
-// Camera Class
-class Camera {
-  constructor(viewWidth, viewHeight, mapWidth, mapHeight) {
-    this.x = 0;
-    this.y = 0;
-    this.viewWidth = viewWidth;
-    this.viewHeight = viewHeight;
-    this.mapWidth = mapWidth;
-    this.mapHeight = mapHeight;
-  }
-
-  centerOn(player) {
-    // Center on player's center
-    this.x = player.x + player.width / 2 - this.viewWidth / 2;
-    this.y = player.y + player.height / 2 - this.viewHeight / 2;
-
-    // Clamp horizontally
-    if (this.mapWidth > this.viewWidth) {
-      if (this.x < 0) this.x = 0;
-      if (this.x + this.viewWidth > this.mapWidth) {
-        this.x = this.mapWidth - this.viewWidth;
-      }
-    } else {
-      this.x = Math.max((this.mapWidth - this.viewWidth) / 2, 0);
-    }
-
-    // Clamp vertically
-    if (this.mapHeight > this.viewHeight) {
-      if (this.y < 0) this.y = 0;
-      if (this.y + this.viewHeight > this.mapHeight) {
-        this.y = this.mapHeight - this.viewHeight;
-      }
-    } else {
-      this.y = Math.max((this.mapHeight - this.viewHeight) / 2, 0);
-    }
-  }
-}
-
-// Game Class
 class Game {
   constructor() {
     // Grab canvas
     this.canvas = document.getElementById("gameCanvas");
     this.ctx = this.canvas.getContext("2d");
-
     this.TILE_SIZE = 32;
 
-    // Generate Maze (from generatePerfectMaze function)
-    this.mapLayout = generatePerfectMaze(44, 44);
-
+    // Let's generate a 10×10 "cell" maze
+    // The global function generatePerfectMaze is defined in generatePerfectMaze.js
+    this.mapLayout = window.generatePerfectMaze(44, 44);
     this.MAP_ROWS = this.mapLayout.length;
     this.MAP_COLS = this.mapLayout[0].length;
     this.mapWidth = this.MAP_COLS * this.TILE_SIZE;
     this.mapHeight = this.MAP_ROWS * this.TILE_SIZE;
 
-    // Player starts near top-left corridor (e.g. tile (1,1))
+    // Player
     this.player = {
       x: 1 * this.TILE_SIZE,
       y: 1 * this.TILE_SIZE,
@@ -64,30 +23,30 @@ class Game {
       height: 16,
       speed: 2,
       dx: 0,
-      dy: 0
+      dy: 0,
     };
 
-    // Just for fun, put a monster near bottom-right
+    // Monster
     this.monster = {
       x: (this.MAP_COLS - 2) * this.TILE_SIZE,
       y: (this.MAP_ROWS - 2) * this.TILE_SIZE,
       width: 16,
-      height: 16
+      height: 16,
     };
 
-    // Put a chest somewhere in the middle
+    // Chest
     this.chest = {
       x: Math.floor(this.MAP_COLS / 2) * this.TILE_SIZE,
       y: Math.floor(this.MAP_ROWS / 2) * this.TILE_SIZE,
       width: 16,
-      height: 16
+      height: 16,
     };
 
     // Input
     this.keys = { up: false, down: false, left: false, right: false };
 
-    // Camera
-    this.camera = new Camera(
+    // Camera (class defined in camera.js)
+    this.camera = new window.Camera(
       this.canvas.width,
       this.canvas.height,
       this.mapWidth,
@@ -96,14 +55,13 @@ class Game {
   }
 
   init() {
-    console.log("Game init fired! Starting game...");
+    console.log("Game init() called!");
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowUp" || e.key === "w") this.keys.up = true;
       if (e.key === "ArrowDown" || e.key === "s") this.keys.down = true;
       if (e.key === "ArrowLeft" || e.key === "a") this.keys.left = true;
       if (e.key === "ArrowRight" || e.key === "d") this.keys.right = true;
-
       if (e.key === " " || e.key === "e") {
         console.log("Interact pressed (stub).");
       }
@@ -122,12 +80,11 @@ class Game {
   gameLoop() {
     this.update();
     this.draw();
-
     // Debug log
     console.log(
-      `camera=(${this.camera.x.toFixed(0)},${this.camera.y.toFixed(0)}), player=(${this.player.x.toFixed(0)},${this.player.y.toFixed(0)})`
+      `camera=(${this.camera.x.toFixed(0)},${this.camera.y.toFixed(0)}), ` +
+      `player=(${this.player.x.toFixed(0)},${this.player.y.toFixed(0)})`
     );
-
     requestAnimationFrame(() => this.gameLoop());
   }
 
@@ -140,8 +97,8 @@ class Game {
     if (this.keys.left) this.player.dx = -this.player.speed;
     if (this.keys.right) this.player.dx = this.player.speed;
 
-    const newX = this.player.x + this.player.dx;
-    const newY = this.player.y + this.player.dy;
+    let newX = this.player.x + this.player.dx;
+    let newY = this.player.y + this.player.dy;
 
     // Collision
     if (!this.hitsWall(newX, this.player.y, this.player.width, this.player.height)) {
@@ -218,10 +175,8 @@ class Game {
     /*
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
     let px = (this.player.x - this.camera.x) + this.player.width / 2;
     let py = (this.player.y - this.camera.y) + this.player.height / 2;
-
     this.ctx.save();
     this.ctx.globalCompositeOperation = "destination-out";
     this.ctx.beginPath();
@@ -255,6 +210,5 @@ class Game {
   }
 }
 
-// Expose classes to the global scope (if not using modules)
-window.Camera = Camera;
+// Make it accessible in the global scope (if not using modules)
 window.Game = Game;

@@ -1,6 +1,5 @@
-console.log("Loaded Camera.js!");
+console.log("Loaded camera.js!");
 
-// Camera Class. This is to make it so the player's center stays in the middle view.
 class Camera {
   constructor(viewWidth, viewHeight, mapWidth, mapHeight) {
     this.x = 0;
@@ -38,5 +37,5 @@ class Camera {
   }
 }
 
-// Make Camera available in the global scope
+// Make it accessible in the global scope (if not using modules)
 window.Camera = Camera;
