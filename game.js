@@ -1,16 +1,6 @@
 console.log("Loaded game.js!");
-
-// ----------------------------------------------------------
-// 1) Maze Generation: Depth-First Search (Perfect Maze)
-// ----------------------------------------------------------
+// Maze Generation: Depth-First Search (Perfect Maze). Uses 1 and 0's for wall.
 function generatePerfectMaze(cellRows, cellCols) {
-  /**
-   * We'll create an array of size (2*cellRows+1) x (2*cellCols+1),
-   * filled with 1 = walls. Then we carve 0 = passages.
-   *
-   * For each "cell" in [0..cellRows-1][0..cellCols-1],
-   * its corresponding tile in the maze array is (2*r+1, 2*c+1).
-   */
 
   const rows = 2 * cellRows + 1;
   const cols = 2 * cellCols + 1;
@@ -96,9 +86,8 @@ function generatePerfectMaze(cellRows, cellCols) {
   return maze;
 }
 
-// ----------------------------------------------------------
-// 2) Camera Class
-// ----------------------------------------------------------
+// Camera Class. This is to make it so the player entities to be in the middle.
+
 class Camera {
   constructor(viewWidth, viewHeight, mapWidth, mapHeight) {
     this.x = 0;
@@ -136,9 +125,7 @@ class Camera {
   }
 }
 
-// ----------------------------------------------------------
 // 3) Game Class
-// ----------------------------------------------------------
 class Game {
   constructor() {
     // Grab canvas
@@ -355,9 +342,7 @@ class Game {
   }
 }
 
-// ----------------------------------------------------------
-// 4) Start Game
-// ----------------------------------------------------------
+//START GAME
 window.onload = () => {
   console.log("Window onload fired!");
   const game = new Game();
