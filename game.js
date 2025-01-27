@@ -16,15 +16,16 @@ class Game {
     this.mapHeight = this.MAP_ROWS * this.TILE_SIZE;
 
     // Player
-    this.player = {
-      x: 1 * this.TILE_SIZE,
-      y: 1 * this.TILE_SIZE,
-      width: 16,
-      height: 16,
-      speed: 2,
-      dx: 0,
-      dy: 0,
-    };
+    // this.player = {
+    //   x: 1 * this.TILE_SIZE,
+    //   y: 1 * this.TILE_SIZE,
+    //   width: 16,
+    //   height: 16,
+    //   speed: 2,
+    //   dx: 0,
+    //   dy: 0,
+    // };
+    this.player = new Tank(this, 0, 0);
 
     // Monster
     this.monster = {
