@@ -43,8 +43,8 @@ class Tank {
 
     draw(ctx) {
 
-       // this.animations[this.state][this.facing].drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y, PARAMS.SCALE);
-        this.animator.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+        this.animations[this.state][this.facing].drawFrame(this.game.clockTick, ctx, this.x - this.game.camera.x, this.y, PARAMS.SCALE);
+        //this.animator.drawFrame(this.game.clockTick, ctx, this.x, this.y);
 
 
         //this.healthBar.draw(ctx);

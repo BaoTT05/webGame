@@ -11,7 +11,7 @@ var ASSET_MANAGER = new AssetManager();
 
 window.onload = () => {
     console.log("Window onload fired!");
-
+    ASSET_MANAGER.queueDownload("./Megaman sprite.png");
     // Ensure assets are loaded before starting the game
     ASSET_MANAGER.downloadAll(() => {
         console.log("All assets loaded!");
@@ -22,20 +22,18 @@ window.onload = () => {
 
 // var ASSET_MANAGER = new AssetManager();
 
-// ASSET_MANAGER.queueDownload("./Spritetemp.PNG");
+// // ASSET_MANAGER.queueDownload("./Spritetemp.PNG");
+// ASSET_MANAGER.queueDownload("./Megaman sprite.png");
 
 // ASSET_MANAGER.downloadAll(function () {
 //   var gameEngine = new Game();
 
-// 	PARAMS.BLOCKWIDTH = PARAMS.BITWIDTH * PARAMS.SCALE;
+// 	//PARAMS.BLOCKWIDTH = PARAMS.BITWIDTH * PARAMS.SCALE;
 
-// 	var canvas = document.getElementById('gameWorld');
-// 	var ctx = canvas.getContext('2d');
+// 	//PARAMS.CANVAS_WIDTH = canvas.width;
+// 	//PARAMS.CANVAS_HEIGHT = canvas.height;
 
-// 	PARAMS.CANVAS_WIDTH = canvas.width;
-// 	PARAMS.CANVAS_HEIGHT = canvas.height;
-
-// 	gameEngine.init(ctx);
+// 	gameEngine.init(this.gameEngine.ctx);
 		
 // 	new SceneManager(gameEngine);
 

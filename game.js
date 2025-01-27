@@ -16,16 +16,17 @@ class Game {
     this.mapHeight = this.MAP_ROWS * this.TILE_SIZE;
 
     // Player
-    // this.player = {
-    //   x: 1 * this.TILE_SIZE,
-    //   y: 1 * this.TILE_SIZE,
-    //   width: 16,
-    //   height: 16,
-    //   speed: 2,
-    //   dx: 0,
-    //   dy: 0,
-    // };
-    this.player = new Tank(this, 0, 0);
+    this.player = {
+      x: 1 * this.TILE_SIZE,
+      y: 1 * this.TILE_SIZE,
+      width: 16,
+      height: 16,
+      speed: 2,
+      dx: 0,
+      dy: 0,
+    };
+
+    this.tank = new Tank(this, this.player.x, this.player.y);
 
     // Monster
     this.monster = {
@@ -162,13 +163,14 @@ class Game {
     );
 
     // Player (white)
-    this.ctx.fillStyle = "white";
-    this.ctx.fillRect(
-      this.player.x,
-      this.player.y,
-      this.player.width,
-      this.player.height
-    );
+    // this.ctx.fillStyle = "white";
+    // this.ctx.fillRect(
+    //   this.player.x,
+    //   this.player.y,
+    //   this.player.width,
+    //   this.player.height
+    // );
+    this.tank.draw(this.ctx);
 
     this.ctx.restore();
 
