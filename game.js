@@ -93,7 +93,8 @@ class Game {
   update() {
     this.player.dx = 0;
     this.player.dy = 0;
-
+    this.tank.x = this.player.x;
+    this.tank.y = this.player.y;
     if (this.keys.up) this.player.dy = -this.player.speed;
     if (this.keys.down) this.player.dy = this.player.speed;
     if (this.keys.left) this.player.dx = -this.player.speed;
