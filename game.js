@@ -9,7 +9,7 @@ class Game {
 
     // Let's generate a 10×10 "cell" maze
     // The global function generatePerfectMaze is defined in generatePerfectMaze.js
-    this.mapLayout = window.generatePerfectMaze(44, 44);
+    this.mapLayout = window.generatePerfectMaze(10, 10, /*corridorSize*/ 1, /*wallSize*/ 4);
     this.MAP_ROWS = this.mapLayout.length;
     this.MAP_COLS = this.mapLayout[0].length;
     this.mapWidth = this.MAP_COLS * this.TILE_SIZE;
@@ -19,8 +19,8 @@ class Game {
     this.player = {
       x: 1 * this.TILE_SIZE,
       y: 1 * this.TILE_SIZE,
-      width: 16,
-      height: 16,
+      width: 30,
+      height: 30,
       speed: 2,
       dx: 0,
       dy: 0,
