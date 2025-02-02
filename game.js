@@ -111,6 +111,8 @@ class Game {
       this.player.y = newY;
     }
 
+    this.tank.update();
+
     // Update camera
     this.camera.centerOn(this.player);
   }
@@ -212,6 +214,14 @@ class Game {
     }
     return this.mapLayout[r][c] === 1;
   }
+
+  loop() {
+    this.clockTick = this.timer.tick();
+    this.update();
+    this.draw();
+
+    this.click = null;
+  };
 }
 
 // Make it accessible in the global scope (if not using modules)
