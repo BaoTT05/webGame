@@ -2,8 +2,6 @@ console.log("Loaded game.js!");
 
 class Game {
   constructor() {
-    this.entities = [];
-
     // Grab canvas
     this.canvas = document.getElementById("gameCanvas");
     this.ctx = this.canvas.getContext("2d");
@@ -81,10 +79,6 @@ class Game {
     requestAnimationFrame(() => this.gameLoop());
   }
 
-  addEntity(entity) {
-    this.entities.push(entity);
-  };
-
   gameLoop() {
     this.update();
     this.draw();
@@ -116,9 +110,6 @@ class Game {
     if (!this.hitsWall(this.player.x, newY, this.player.width, this.player.height)) {
       this.player.y = newY;
     }
-
-    this.tank.x = this.player.x;
-    this.tank.y = this.player.y;
 
     // Update camera
     this.camera.centerOn(this.player);
@@ -173,13 +164,13 @@ class Game {
     );
 
     // Player (white)
-    this.ctx.fillStyle = "white";
-    this.ctx.fillRect(
-      this.player.x,
-      this.player.y,
-      this.player.width,
-      this.player.height
-    );
+    // this.ctx.fillStyle = "white";
+    // this.ctx.fillRect(
+    //   this.player.x,
+    //   this.player.y,
+    //   this.player.width,
+    //   this.player.height
+    // );
     this.tank.draw(this.ctx);
 
     this.ctx.restore();
