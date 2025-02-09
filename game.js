@@ -6,25 +6,14 @@ class Game {
     this.TILE_SIZE = 32;
 
     // Generate the maze layout using generatePerfectMaze
-    this.mapLayout = window.generatePerfectMaze(10, 10, 1, 4);
+    this.mapLayout = window.generatePerfectMaze(40, 40, 4,1);
     this.MAP_ROWS = this.mapLayout.length;
     this.MAP_COLS = this.mapLayout[0].length;
     this.mapWidth = this.MAP_COLS * this.TILE_SIZE;
     this.mapHeight = this.MAP_ROWS * this.TILE_SIZE;
 
-    // Define the player
-    this.player = {
-      x: 1 * this.TILE_SIZE,
-      y: 1 * this.TILE_SIZE,
-      width: 30,
-      height: 30,
-      speed: 2,
-      dx: 0,
-      dy: 0,
-    };
-
-    // Create the Tank character at the player's location
-    this.tank = new Tank(this, this.player.x, this.player.y);
+    // Instead of a separate player object, we use the Tank as our player.
+    this.tank = new Tank(this, 1 * this.TILE_SIZE, 1 * this.TILE_SIZE);
 
     // Create a monster and a chest for demonstration
     this.monster = {
@@ -44,7 +33,7 @@ class Game {
     // Input keys
     this.keys = { up: false, down: false, left: false, right: false };
 
-    // Create a Camera to follow the player
+    // Create a Camera to follow the Tank (player)
     this.camera = new Camera(this.canvas.width, this.canvas.height, this.mapWidth, this.mapHeight);
 
     // For calculating the delta time (clock tick)
@@ -86,42 +75,44 @@ class Game {
   }
 
   update() {
-    this.player.dx = 0;
-    this.player.dy = 0;
-    this.tank.x = this.player.x;
-    this.tank.y = this.player.y;
-    if (this.keys.up) this.player.dy = -this.player.speed;
-    if (this.keys.down) this.player.dy = this.player.speed;
-    if (this.keys.left) this.player.dx = -this.player.speed;
-    if (this.keys.right) this.player.dx = this.player.speed;
+    // Determine movement based on keys
+    let dx = 0, dy = 0;
+    if (this.keys.up)    dy = -this.tank.speed;
+    if (this.keys.down)  dy =  this.tank.speed;
+    if (this.keys.left)  dx = -this.tank.speed;
+    if (this.keys.right) dx =  this.tank.speed;
 
-    let newX = this.player.x + this.player.dx;
-    let newY = this.player.y + this.player.dy;
-
-    if (!this.hitsWall(newX, this.player.y, this.player.width, this.player.height)) {
-      this.player.x = newX;
+    // Check collisions for horizontal movement.
+    let newX = this.tank.x + dx;
+    if (!this.hitsWall(newX, this.tank.y, 35, 30)) {
+      this.tank.x = newX;
     }
-    if (!this.hitsWall(this.player.x, newY, this.player.width, this.player.height)) {
-      this.player.y = newY;
+    // Check collisions for vertical movement.
+    let newY = this.tank.y + dy;
+    if (!this.hitsWall(this.tank.x, newY, 35, 30)) {
+      this.tank.y = newY;
     }
 
+    // Update animation state, etc.
     this.tank.update();
-    this.camera.centerOn(this.player);
+
+    // Update the camera to follow the tank.
+    this.camera.update(this.tank);
   }
 
   draw() {
-    // Clear the canvas
+    // Clear the canvas.
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Draw background
+    // Draw background.
     this.ctx.fillStyle = "green";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Apply camera translation
+    // Apply camera translation.
     this.ctx.save();
     this.ctx.translate(-this.camera.x, -this.camera.y);
 
-    // Draw maze (walls and floor)
+    // Draw maze (walls and floor).
     for (let row = 0; row < this.MAP_ROWS; row++) {
       for (let col = 0; col < this.MAP_COLS; col++) {
         this.ctx.fillStyle = this.mapLayout[row][col] === 1 ? "#888" : "#66BB66";
@@ -129,14 +120,14 @@ class Game {
       }
     }
 
-    // Draw monster and chest for demo purposes
+    // Draw monster and chest for demo purposes.
     this.ctx.fillStyle = "purple";
     this.ctx.fillRect(this.monster.x, this.monster.y, this.monster.width, this.monster.height);
 
     this.ctx.fillStyle = "gold";
     this.ctx.fillRect(this.chest.x, this.chest.y, this.chest.width, this.chest.height);
 
-    // Draw the Tank (player character)
+    // Draw the Tank (player character) at its world coordinates.
     this.tank.draw(this.ctx);
 
     this.ctx.restore();
@@ -165,5 +156,4 @@ class Game {
   }
 }
 
-// Make Game accessible globally if needed.
 window.Game = Game;
