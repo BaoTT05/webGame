@@ -79,8 +79,10 @@ class Game {
     let dx = 0, dy = 0;
     if (this.keys.up)    dy = -this.tank.speed;
     if (this.keys.down)  dy =  this.tank.speed;
+    if (this.keys.up && this.keys.down) dy = 0;
     if (this.keys.left)  dx = -this.tank.speed;
     if (this.keys.right) dx =  this.tank.speed;
+    if (this.keys.left && this.keys.right) dx = 0;
 
     // Check collisions for horizontal movement.
     let newX = this.tank.x + dx;

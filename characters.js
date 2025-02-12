@@ -11,7 +11,7 @@ class Tank {
         this.height = 30;
 
         // Movement speed (in world units per update).
-        this.speed = 10;
+        this.speed = 1;
 
         // Animation state:
         // facing: 0 = left, 1 = right (could be expanded to up/down if needed)
@@ -57,11 +57,22 @@ class Tank {
         // Update animation state based on input keys tracked by the Game.
         let moving = false;
 
-        if (this.game.keys.left && !this.game.keys.right) {
+        if (this.game.keys.up && this.game.keys.down) {
+            this.state = 0;
+        }
+        else if (this.game.keys.left && !this.game.keys.right) {
             this.state = 1;
             this.facing = 0;
             moving = true;
         } else if (this.game.keys.right && !this.game.keys.left) {
+            this.state = 1;
+            this.facing = 1;
+            moving = true;
+        } else if (this.game.keys.up && !this.game.keys.down) {
+            this.state = 1;
+            this.facing = 0;
+            moving = true;
+        } else if (this.game.keys.down && !this.game.keys.right) {
             this.state = 1;
             this.facing = 1;
             moving = true;
