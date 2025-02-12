@@ -52,7 +52,7 @@ class Tank {
         // Health properties.
         this.currentHealth = 100;
         this.maxHealth = 100;
-        this.healthbar = new HealthBar(this);
+        this.healthBar = new HealthBar(this);
 
         // Load the spritesheet using the AssetManager.
         this.spritesheet = ASSET_MANAGER.getAsset("./Megaman sprite.png");
