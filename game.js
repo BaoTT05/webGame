@@ -48,6 +48,8 @@ class Game {
       if (e.key === "ArrowDown" || e.key === "s") this.keys.down = true;
       if (e.key === "ArrowLeft" || e.key === "a") this.keys.left = true;
       if (e.key === "ArrowRight" || e.key === "d") this.keys.right = true;
+      if (e.key === "r") this.keys.melee = true;
+      if (e.key === "t") this.keys.shoot = true;
       if (e.key === " " || e.key === "e") {
         console.log("Interact pressed (stub).");
       }
@@ -58,6 +60,8 @@ class Game {
       if (e.key === "ArrowDown" || e.key === "s") this.keys.down = false;
       if (e.key === "ArrowLeft" || e.key === "a") this.keys.left = false;
       if (e.key === "ArrowRight" || e.key === "d") this.keys.right = false;
+      if (e.key === "r") this.keys.melee = false;
+      if (e.key === "t") this.keys.shoot = false;
     });
 
     requestAnimationFrame(() => this.gameLoop());
