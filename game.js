@@ -31,7 +31,7 @@ class Game {
     };
 
     // Input keys
-    this.keys = { up: false, down: false, left: false, right: false };
+    this.keys = { up: false, down: false, left: false, right: false , melee: false, shoot: false};
 
     // Create a Camera to follow the Tank (player)
     this.camera = new Camera(this.canvas.width, this.canvas.height, this.mapWidth, this.mapHeight);
@@ -48,8 +48,6 @@ class Game {
       if (e.key === "ArrowDown" || e.key === "s") this.keys.down = true;
       if (e.key === "ArrowLeft" || e.key === "a") this.keys.left = true;
       if (e.key === "ArrowRight" || e.key === "d") this.keys.right = true;
-      if (e.key === "r") this.keys.melee = true;
-      if (e.key === "t") this.keys.shoot = true;
       if (e.key === " " || e.key === "e") {
         console.log("Interact pressed (stub).");
       }
@@ -60,8 +58,6 @@ class Game {
       if (e.key === "ArrowDown" || e.key === "s") this.keys.down = false;
       if (e.key === "ArrowLeft" || e.key === "a") this.keys.left = false;
       if (e.key === "ArrowRight" || e.key === "d") this.keys.right = false;
-      if (e.key === "r") this.keys.melee = false;
-      if (e.key === "t") this.keys.shoot = false;
     });
 
     requestAnimationFrame(() => this.gameLoop());

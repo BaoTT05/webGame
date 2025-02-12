@@ -142,6 +142,13 @@ class Tank {
             moving = true;
         }
 
+        else if (this.game.keys.left && !this.game.keys.right && this.game.keys.melee) {
+            this.state = 1;
+            this.facing = 0;
+            this.attacks = 1;
+            moving = true;
+        }
+
         if (!moving) {
             this.state = 0;
         }
