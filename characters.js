@@ -100,57 +100,66 @@ class Tank {
         if (this.game.keys.left && this.game.keys.right && this.game.keys.up) {
             this.state = 1;
             this.facing = 0;
+            this.attacks = 0;
             moving = true;
         } else if (this.game.keys.left && this.game.keys.right && this.game.keys.down) {
             this.state = 1;
             this.facing = 1;
+            this.attacks = 0;
             moving = true;
         } else if (this.game.keys.up && this.game.keys.down && this.game.keys.right) {
             this.state = 1;
             this.facing = 1;
+            this.attacks = 0;
             moving = true;
         } else if (this.game.keys.up && this.game.keys.down && this.game.keys.left) {
             this.state = 1;
             this.facing = 0;
+            this.attacks = 0;
             moving = true;
         } 
         
         else if (this.game.keys.up && this.game.keys.down) {
             this.state = 0;
+            this.attacks = 0;
         } else if (this.game.keys.left && this.game.keys.right) {
             this.state = 0;
+            this.attacks = 0;
         } else if (this.game.keys.up && this.game.keys.down && this.game.keys.left && this.game.keys.right) {
             this.state = 0;
+            this.attacks = 0;
             moving = false;
-        } 
+        }
         
         else if (this.game.keys.left && !this.game.keys.right) {
             this.state = 1;
             this.facing = 0;
+            this.attacks = 0;
             moving = true;
         } else if (this.game.keys.right && !this.game.keys.left) {
             this.state = 1;
             this.facing = 1;
+            this.attacks = 0;
             moving = true;
         } else if (this.game.keys.up && !this.game.keys.down) {
             this.state = 1;
-            this.facing = 0;
+            this.attacks = 0;
             moving = true;
         } else if (this.game.keys.down && !this.game.keys.up) {
             this.state = 1;
-            this.facing = 1;
+            this.attacks = 0;
             moving = true;
         }
 
-        else if (this.game.keys.left && !this.game.keys.right && this.game.keys.melee) {
+        else if (this.game.keys.melee) {
             this.state = 1;
-            this.facing = 0;
             this.attacks = 1;
             moving = true;
         }
 
         if (!moving) {
             this.state = 0;
+            this.attacks = 0;
         }
 
         // (Additional state updates can be added here if needed.)
