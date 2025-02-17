@@ -12,6 +12,9 @@ var ASSET_MANAGER = new AssetManager();
 window.onload = () => {
     console.log("Window onload fired!");
     ASSET_MANAGER.queueDownload("./Megaman sprite.png");
+    ASSET_MANAGER.queueDownload("./grass.png");
+    ASSET_MANAGER.queueDownload("./tree.png");
+
     // Ensure assets are loaded before starting the game
     ASSET_MANAGER.downloadAll(() => {
         console.log("All assets loaded!");
