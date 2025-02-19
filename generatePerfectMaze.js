@@ -1,3 +1,6 @@
+// ===================
+// generatePerfectMaze.js
+// ===================
 console.log("Loaded generatePerfectMaze.js!");
 
 function generatePerfectMaze(cellRows, cellCols, corridorSize = 3, wallSize = 1) {
@@ -28,39 +31,25 @@ function generatePerfectMaze(cellRows, cellCols, corridorSize = 3, wallSize = 1)
     return neighbors;
   }
 
-  // 3) Depth-first search to carve out the maze
+  // 3) DFS to carve out the maze
   while (stack.length > 0) {
     const [cr, cc] = stack[stack.length - 1];
     const neighbors = getUnvisitedNeighbors(cr, cc);
 
     if (neighbors.length === 0) {
-      // Backtrack
       stack.pop();
     } else {
-      // Choose a random neighbor
       const [nr, nc] = neighbors[Math.floor(Math.random() * neighbors.length)];
       visited[nr][nc] = true;
       stack.push([nr, nc]);
 
-      // Carve a path
+      // Carve a path between (cr,cc) and (nr,nc)
       const row1 = 2 * cr + 1;
       const col1 = 2 * cc + 1;
-      const row2 = 2 * nr + 1;
-      const col2 = 2 * nc + 1;
-
-      if (nr === cr - 1) {
-        // Carve upward
-        maze[row1 - 1][col1] = 0;
-      } else if (nr === cr + 1) {
-        // Carve downward
-        maze[row1 + 1][col1] = 0;
-      } else if (nc === cc - 1) {
-        // Carve left
-        maze[row1][col1 - 1] = 0;
-      } else if (nc === cc + 1) {
-        // Carve right
-        maze[row1][col1 + 1] = 0;
-      }
+      if (nr === cr - 1) maze[row1 - 1][col1] = 0;
+      else if (nr === cr + 1) maze[row1 + 1][col1] = 0;
+      else if (nc === cc - 1) maze[row1][col1 - 1] = 0;
+      else if (nc === cc + 1) maze[row1][col1 + 1] = 0;
     }
   }
 
@@ -69,7 +58,6 @@ function generatePerfectMaze(cellRows, cellCols, corridorSize = 3, wallSize = 1)
     const smallRows = smallMaze.length;
     const smallCols = smallMaze[0].length;
 
-    // Calculate inflated dimensions
     let bigRows = 0;
     for (let r = 0; r < smallRows; r++) {
       bigRows += (r % 2 === 0) ? boundary : corridor;
@@ -79,10 +67,8 @@ function generatePerfectMaze(cellRows, cellCols, corridorSize = 3, wallSize = 1)
       bigCols += (c % 2 === 0) ? boundary : corridor;
     }
 
-    // Create the inflated maze
     const thickMaze = Array.from({ length: bigRows }, () => Array(bigCols).fill(0));
 
-    // Helper to fill a rectangular block in the inflated grid
     function fillBlock(rStart, cStart, rSize, cSize, val) {
       for (let rr = 0; rr < rSize; rr++) {
         for (let cc = 0; cc < cSize; cc++) {
@@ -91,34 +77,23 @@ function generatePerfectMaze(cellRows, cellCols, corridorSize = 3, wallSize = 1)
       }
     }
 
-    // Fill the inflated maze
     let rowOffset = 0;
     for (let r = 0; r < smallRows; r++) {
       const rowBlockSize = (r % 2 === 0) ? boundary : corridor;
       let colOffset = 0;
       for (let c = 0; c < smallCols; c++) {
         const colBlockSize = (c % 2 === 0) ? boundary : corridor;
-        // Use the same value as the small maze (NO inversion)
-        const newVal = smallMaze[r][c];
-        fillBlock(rowOffset, colOffset, rowBlockSize, colBlockSize, newVal);
+        fillBlock(rowOffset, colOffset, rowBlockSize, colBlockSize, smallMaze[r][c]);
         colOffset += colBlockSize;
       }
       rowOffset += rowBlockSize;
     }
-
     return thickMaze;
   }
 
-  // 5) Generate the final, "thick" maze
   const thickMaze = inflateMaze(maze, corridorSize, wallSize);
-
-  // 6) Print the inflated maze in the console, row by row
   console.log("Generated Maze:");
-  thickMaze.forEach((row) => {
-    console.log(row.join(" "));
-  });
-
-  // Return the final inflated maze array
+  thickMaze.forEach((row) => console.log(row.join(" ")));
   return thickMaze;
 }
 
