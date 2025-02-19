@@ -63,10 +63,10 @@ class Tank {
     }
 
     loadAnimations(spritesheet) {
-        // We assume two states (idle = 0, walking = 1), two directions (left = 0, right = 1), and attacks (0 = none, 1 = melee, 2 = range) .
+        // We assume two states (idle = 0, walking = 1), four directions (left = 0, right = 1, up = 2, down = 3), and attacks (0 = none, 1 = melee, 2 = range) .
         for (let i = 0; i < 2; i++) {
             this.animations.push([]);
-            for (let j = 0; j < 2; j++) {
+            for (let j = 0; j < 4; j++) {
                 this.animations[i].push([]);
                 for (let k = 0; k < 3; k++) {
                     this.animations[i][j].push(null);
@@ -91,13 +91,38 @@ class Tank {
         this.animations[1][0][1] = new Animator(spritesheet, 0, 151, 35, 30, 4, 0.2, 0, false, true);
         // Right-facing melee attack animation.
         this.animations[1][1][1] = new Animator(spritesheet, 0, 91, 35, 30, 4, 0.2, 0, false, true);
+
+        //Shoot animations:
+        // Left-facing shoot animation.
+        this.animations[1][0][2] = new Animator(spritesheet, 0, 181, 35, 30, 4, 0.2, 0, false, true);
+        // Right-facing shoot animation.
+        this.animations[1][1][2] = new Animator(spritesheet, 0, 121, 35, 30, 4, 0.2, 0, false, true);
     }
+
+    // shoot() {
+    //     const beamX = this.x + this.width / 2;
+    //     const beamY = this.y + this.height / 2;
+    //     //const direction = this.facing === 0 ? 0 : 1; // 0 = left, 1 = right
+    //     const projectile = new Beam(this.game, beamX, beamY);
+
+    //     this.game.addEntity(projectile);
+    // }
 
     update() {
         // Update animation state based on input keys tracked by the Game.
         let moving = false;
 
-        if (this.game.keys.left && this.game.keys.right && this.game.keys.up) {
+        if (this.game.keys.melee) {
+            this.state = 1;
+            this.attacks = 1;
+            moving = true;
+        } else if (this.game.keys.shoot) {
+            this.state = 1;
+            this.attacks = 2;
+            moving = true;
+        }
+
+        else if (this.game.keys.left && this.game.keys.right && this.game.keys.up) {
             this.state = 1;
             this.facing = 0;
             this.attacks = 0;
@@ -151,11 +176,15 @@ class Tank {
             moving = true;
         }
 
-        else if (this.game.keys.melee) {
-            this.state = 1;
-            this.attacks = 1;
-            moving = true;
-        }
+        // for (let i = this.game.entities.length - 1; i >= 0; i--) {
+        //     const entity = this.game.entities[i];
+        //     if (entity instanceof Beam) {
+        //         entity.update();
+        //         if (entity.distanceTraveled > entity.range) {
+        //             this.game.entities.splice(i, 1); // Remove the projectile when it goes out of range
+        //         }
+        //     }
+        // }
 
         if (!moving) {
             this.state = 0;
@@ -173,11 +202,17 @@ class Tank {
 
         // Draw the current animation frame at the Tank's world coordinates.
         if (this.animations[this.state] && this.animations[this.state][this.facing][this.attacks]) {
-            this.animations[this.state][this.facing][this.attacks].drawFrame(
-                this.game.clockTick, ctx, this.x, this.y, 1
-            );
-        } else {
-            console.error("Missing animation for state:", this.state, "facing:", this.facing);
+            this.animations[this.state][this.facing][this.attacks].drawFrame(this.game.clockTick, ctx, this.x, this.y, 1);
+            // if (this.attacks == 2) {
+            //     for (let i = 0; i < this.game.entities.length; i++) {
+            //         const entity = this.game.entities[i];
+            //         if (entity instanceof Beam) {
+            //             entity.draw(ctx);
+            //         }
+            // }
+        }
+        else {
+            console.error("Missing animation for state:", this.state, "facing:", this.facing, "attacks:", this.attacks);
         }
         //this.healthBar.draw(ctx);
         if (this.healthBar) {
@@ -185,5 +220,6 @@ class Tank {
         }
     }
 }
+
 
 window.Tank = Tank;

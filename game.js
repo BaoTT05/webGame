@@ -14,6 +14,9 @@ class Game {
     // Use the Tank as our player (hero)
     this.tank = new Tank(this, 1 * this.TILE_SIZE, 1 * this.TILE_SIZE);
 
+    // Entity Holder
+    this.entities = [];
+
     // Demo objects
     this.monster = {
       x: (this.MAP_COLS - 2) * this.TILE_SIZE,
@@ -47,6 +50,10 @@ class Game {
 
     // Set the active hero (to allow multiple heroes later)
     this.activeHero = this.tank;
+  }
+
+  addEntity(entity) {
+      this.entities.push(entity);
   }
 
   init() {
