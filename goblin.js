@@ -1,81 +1,124 @@
+// goblin.js
 class Goblin extends Monster {
-    constructor(game, x, y, isLeader = false) {
-      if (isLeader) {
-        // Leader goblin: slightly bigger, faster, and tougher.
-        super(game, x, y, 40, 40, 60, 80, 15);
-        this.isLeader = true;
-      } else {
-        super(game, x, y, 30, 30, 50, 50, 10);
-        this.isLeader = false;
-      }
-      // For follower goblins, we'll set this property to point to the leader.
-      this.groupLeader = null;
+  constructor(game, x, y, isLeader = false) {
+    if (isLeader) {
+      // Leader slightly bigger, but <= 32 so it can move.
+      super(game, x, y, 28, 28, 60, 80, 15); 
+      this.isLeader = true;
+    } else {
+      // Normal goblin smaller, e.g. 24×24
+      super(game, x, y, 24, 24, 50, 50, 10);
+      this.isLeader = false;
     }
-  
-    update(deltaTime) {
-      const player = this.game.activeHero;
+
+    this.groupLeader = null;
+    this.roamDir = { x: 0, y: 0 };
+    this.roamTimer = 0;
+
+    this.chaseRadius = 250;
+    this.minLeaderDistance = 50;
+  }
+
+  update(deltaTime) {
+    // Random roaming direction timer
+    this.roamTimer -= deltaTime;
+    if (this.roamTimer <= 0) {
+      this.roamDir.x = Math.random() < 0.5 ? -1 : 1;
+      this.roamDir.y = Math.random() < 0.5 ? -1 : 1;
+      this.roamTimer = 2 + Math.random() * 3;
+    }
+
+    const player = this.game.activeHero;
+    if (!player) {
+      // No player => roam
+      this.roam(deltaTime);
+    } else {
+      // Distance to player
+      const dxPlayer = player.x - this.x;
+      const dyPlayer = player.y - this.y;
+      const distPlayer = Math.sqrt(dxPlayer * dxPlayer + dyPlayer * dyPlayer);
+
       if (this.isLeader) {
-        // Leader goblin: chase the player aggressively.
-        if (player) {
-          const dx = player.x - this.x;
-          const dy = player.y - this.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          if (distance < 250) {
-            const norm = distance || 1;
-            this.x += (dx / norm) * this.speed * deltaTime;
-            this.y += (dy / norm) * this.speed * deltaTime;
-          }
+        // Leader: chase if near, else roam
+        if (distPlayer < this.chaseRadius) {
+          this.chase(player.x, player.y, deltaTime);
+        } else {
+          this.roam(deltaTime);
         }
       } else if (this.groupLeader) {
-        // Follower goblin: stick close to the leader.
-        const leader = this.groupLeader;
-        const dx = leader.x - this.x;
-        const dy = leader.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance > 50) { // Increase threshold to keep them closer.
-          const norm = distance || 1;
-          this.x += (dx / norm) * this.speed * deltaTime;
-          this.y += (dy / norm) * this.speed * deltaTime;
+        // Follower logic
+        const dxLead = this.groupLeader.x - this.x;
+        const dyLead = this.groupLeader.y - this.y;
+        const distLead = Math.sqrt(dxLead * dxLead + dyLead * dyLead);
+        if (distLead > this.minLeaderDistance) {
+          // Move toward leader
+          this.chase(this.groupLeader.x, this.groupLeader.y, deltaTime);
+        } else {
+          // If near leader but also near player => chase
+          if (distPlayer < this.chaseRadius) {
+            this.chase(player.x, player.y, deltaTime);
+          } else {
+            this.roam(deltaTime);
+          }
         }
-      } else if (player) {
-        // Fallback: if no leader is set, chase the player.
-        const dx = player.x - this.x;
-        const dy = player.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 250) {
-          const norm = distance || 1;
-          this.x += (dx / norm) * this.speed * deltaTime;
-          this.y += (dy / norm) * this.speed * deltaTime;
-        }
-      }
-      this.dealDamageToPlayer(deltaTime);
-    }
-  
-    draw(ctx) {
-      const centerX = this.x + this.width / 2;
-      const centerY = this.y + this.height / 2;
-      if (this.isLeader) {
-        // Draw the leader as a distinct red rectangle.
-        ctx.fillStyle = "red";
-        ctx.fillRect(this.x, this.y, this.width, this.height);
       } else {
-        // Follower goblins use a gradient (green to black).
-        let gradient = ctx.createRadialGradient(
-          centerX, centerY, this.width * 0.1,
-          centerX, centerY, this.width / 2
-        );
-        gradient.addColorStop(0, 'green');
-        gradient.addColorStop(1, 'black');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        // No leader assigned
+        if (distPlayer < this.chaseRadius) {
+          this.chase(player.x, player.y, deltaTime);
+        } else {
+          this.roam(deltaTime);
+        }
       }
-      
-      // Draw the health bar above the goblin.
-      ctx.fillStyle = "red";
-      const healthWidth = this.width * (this.currentHealth / this.maxHealth);
-      ctx.fillRect(this.x, this.y - 10, healthWidth, 5);
-      ctx.strokeStyle = "black";
-      ctx.strokeRect(this.x, this.y - 10, this.width, 5);
+    }
+
+    this.dealDamageToPlayer(deltaTime);
+  }
+
+  roam(deltaTime) {
+    const roamSpeed = this.speed * 0.5;
+    let newX = this.x + this.roamDir.x * roamSpeed * deltaTime;
+    let newY = this.y + this.roamDir.y * roamSpeed * deltaTime;
+
+    if (!this.game.hitsWall(newX, this.y, this.width, this.height)) {
+      this.x = newX;
+    }
+    if (!this.game.hitsWall(this.x, newY, this.width, this.height)) {
+      this.y = newY;
     }
   }
-  
+
+  chase(targetX, targetY, deltaTime) {
+    const dx = targetX - this.x;
+    const dy = targetY - this.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    let newX = this.x + (dx / dist) * this.speed * deltaTime;
+    let newY = this.y + (dy / dist) * this.speed * deltaTime;
+
+    if (!this.game.hitsWall(newX, this.y, this.width, this.height)) {
+      this.x = newX;
+    }
+    if (!this.game.hitsWall(this.x, newY, this.width, this.height)) {
+      this.y = newY;
+    }
+  }
+
+  draw(ctx) {
+    // Override base "purple"
+    if (this.isLeader) {
+      ctx.fillStyle = "red";
+    } else {
+      ctx.fillStyle = "green";
+    }
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+
+    // Health bar
+    ctx.fillStyle = "red";
+    const hpWidth = this.width * (this.currentHealth / this.maxHealth);
+    ctx.fillRect(this.x, this.y - 10, hpWidth, 5);
+
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(this.x, this.y - 10, this.width, 5);
+  }
+}
+
+window.Goblin = Goblin;
