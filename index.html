@@ -19,7 +19,7 @@
 <body>
   <canvas id="gameCanvas" width="1040" height="720"></canvas>
 
-  <!-- Load in the correct order to ensure everything is defined -->
+
   <script src="assetmanager.js"></script>
   <script src="utils.js"></script>
   <script src="generatePerfectMaze.js"></script>
@@ -27,10 +27,22 @@
   <script src="animator.js"></script>
   <script src="projectiles.js"></script>
   <script src="heathBar.js"></script>
+  
+  <!-- Characters (player, health bar, etc.) -->
   <script src="characters.js"></script>
+  
+  <!-- The base monster class -->
   <script src="monster.js"></script>
+  
+  <!-- Subclasses -->
+  <script src="goblin.js"></script>
+  <script src="slime.js"></script>
+  <!-- If you have ghost.js, you can do <script src="ghost.js"></script> -->
+  
+  <!-- The game code that spawns them -->
   <script src="game.js"></script>
-  <script src="scenemanager.js"></script>
   <script src="main.js"></script>
+  
+  
 </body>
 </html>
