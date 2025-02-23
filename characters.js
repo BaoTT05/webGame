@@ -112,24 +112,96 @@ class Tank {
   
 
   update() {
-    // Movement states
-    if (this.game.keys.left && !this.game.keys.right) {
-      this.state = 1;
-      this.facing = 0;
-    } else if (this.game.keys.right && !this.game.keys.left) {
-      this.state = 1;
-      this.facing = 1;
-    } else {
-      this.state = 0;
+    // // Movement states
+    // if (this.game.keys.left && !this.game.keys.right) {
+    //   this.state = 1;
+    //   this.facing = 0;
+    // } else if (this.game.keys.right && !this.game.keys.left) {
+    //   this.state = 1;
+    //   this.facing = 1;
+    // } else {
+    //   this.state = 0;
+    // }
+
+    // // Attack
+    // if (this.game.keys.melee) {
+    //   this.attacks = 1;
+    //   this.meleeAttack();
+    // } else {
+    //   this.attacks = 0;
+    // }
+    let moving = false;
+
+    if (this.game.keys.melee) {
+        this.state = 1;
+        this.attacks = 1;
+        moving = true;
+    } else if (this.game.keys.shoot) {
+        this.state = 1;
+        this.attacks = 2;
+        moving = true;
     }
 
-    // Attack
-    if (this.game.keys.melee) {
-      this.attacks = 1;
-      this.meleeAttack();
-    } else {
+    else if (this.game.keys.left && this.game.keys.right && this.game.keys.up) {
+        this.state = 1;
+        this.facing = 0;
+        this.attacks = 0;
+        moving = true;
+    } else if (this.game.keys.left && this.game.keys.right && this.game.keys.down) {
+        this.state = 1;
+        this.facing = 1;
+        this.attacks = 0;
+        moving = true;
+    } else if (this.game.keys.up && this.game.keys.down && this.game.keys.right) {
+        this.state = 1;
+        this.facing = 1;
+        this.attacks = 0;
+        moving = true;
+    } else if (this.game.keys.up && this.game.keys.down && this.game.keys.left) {
+        this.state = 1;
+        this.facing = 0;
+        this.attacks = 0;
+        moving = true;
+    } 
+    
+    else if (this.game.keys.up && this.game.keys.down) {
+        this.state = 0;
+        this.attacks = 0;
+    } else if (this.game.keys.left && this.game.keys.right) {
+        this.state = 0;
+        this.attacks = 0;
+    } else if (this.game.keys.up && this.game.keys.down && this.game.keys.left && this.game.keys.right) {
+        this.state = 0;
+        this.attacks = 0;
+        moving = false;
+    }
+    
+    else if (this.game.keys.left && !this.game.keys.right) {
+        this.state = 1;
+        this.facing = 0;
+        this.attacks = 0;
+        moving = true;
+    } else if (this.game.keys.right && !this.game.keys.left) {
+        this.state = 1;
+        this.facing = 1;
+        this.attacks = 0;
+        moving = true;
+    } else if (this.game.keys.up && !this.game.keys.down) {
+        this.state = 1;
+        this.attacks = 0;
+        moving = true;
+    } else if (this.game.keys.down && !this.game.keys.up) {
+        this.state = 1;
+        this.attacks = 0;
+        moving = true;
+    }
+
+    if (!moving) {
+      this.state = 0;
       this.attacks = 0;
     }
+
+
 
     if (this.healthBar) this.healthBar.update();
   }
