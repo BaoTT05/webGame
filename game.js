@@ -48,6 +48,7 @@ class Game {
     this.winArea = null; 
     this.confettiParticles = [];
     this.playAgainButton = null;
+    
   }
 
   init() {
@@ -140,17 +141,18 @@ class Game {
   }
 
   spawnMonsters() {
-    // Example: spawn 3 groups of goblins
-    for (let i = 0; i < 3; i++) {
+    // Spawn Goblin Groups
+    for (let i = 0; i < this.goblinGroupCount; i++) {
       this.spawnGoblinGroup();
     }
-
-    // Spawn 10 slimes
-    for (let i = 0; i < 10; i++) {
+  
+    // Spawn Slimes
+    for (let i = 0; i < this.slimeCount; i++) {
       let placed = false;
       while (!placed) {
         const row = Math.floor(Math.random() * this.MAP_ROWS);
         const col = Math.floor(Math.random() * this.MAP_COLS);
+  
         if (!this.isWallTile(row, col) && (row > 2 || col > 2)) {
           const x = col * this.TILE_SIZE;
           const y = row * this.TILE_SIZE;
@@ -161,6 +163,7 @@ class Game {
       }
     }
   }
+  
   
   spawnGoblinGroup() {
     let placed = false;
@@ -357,8 +360,8 @@ class Game {
     const rect = this.canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
-
-    // Check difficulty
+  
+    // Check which difficulty button is clicked
     if (this.isInsideButton(mx, my, this.easyButton)) {
       this.selectedDifficulty = "easy";
     }
@@ -368,36 +371,44 @@ class Game {
     if (this.isInsideButton(mx, my, this.hardButton)) {
       this.selectedDifficulty = "hard";
     }
-
-    // Check "Play"
+  
+    // Check "Play" button
     if (this.isInsideButton(mx, my, this.playButton)) {
       if (this.selectedDifficulty) {
         switch (this.selectedDifficulty) {
           case "easy":
-            this.mazeRows = 20; 
+            this.mazeRows = 20;
             this.mazeCols = 20;
             this.meleeDamage = 20;
+            this.goblinGroupCount = 30; // <-- spawn 30 goblin groups
+            this.slimeCount = 30;       // <-- spawn 30 slimes
             break;
+  
           case "medium":
             this.mazeRows = 40;
             this.mazeCols = 40;
             this.meleeDamage = 10;
+            this.goblinGroupCount = 65; // <-- spawn 65 goblin groups
+            this.slimeCount = 65;       // <-- spawn 65 slimes
             break;
+  
           case "hard":
             this.mazeRows = 55;
             this.mazeCols = 55;
             this.meleeDamage = 5;
+            this.goblinGroupCount = 100; // <-- spawn 100 goblin groups
+            this.slimeCount = 100;       // <-- spawn 100 slimes
             break;
         }
-        // Initialize the actual game world with chosen difficulty
+        // Proceed to init the game with chosen difficulty
         this.initGameWorld();
-        // Switch to "PLAY"
         this.gameState = "PLAY";
       } else {
         console.log("Please select a difficulty first!");
       }
     }
   }
+  
 
   isInsideButton(mx, my, btn) {
     return (mx >= btn.x && mx <= btn.x + btn.width && 
