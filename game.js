@@ -14,6 +14,16 @@ class Game {
     this.mazeCols = 10;
     this.meleeDamage = 20;
 
+    // Entity Holder
+    this.entities = [];
+
+    // Demo chest (if needed)
+    this.chest = {
+      x: Math.floor(this.MAP_COLS / 2) * this.TILE_SIZE,
+      y: Math.floor(this.MAP_ROWS / 2) * this.TILE_SIZE,
+      width: 16,
+      height: 16,
+    };
     // Menu button rectangles:
     this.easyButton   = { x: 400, y: 200, width: 100, height: 40 };
     this.mediumButton = { x: 400, y: 250, width: 100, height: 40 };
@@ -49,6 +59,10 @@ class Game {
     this.confettiParticles = [];
     this.playAgainButton = null;
     
+  }
+
+  addEntity(entity) {
+      this.entities.push(entity);
   }
 
   init() {
