@@ -1,6 +1,6 @@
 // characters.js
 
-// --- HealthBar Class ---
+// --- HealthBar Class (Unchanged) ---
 class HealthBar {
   constructor(entity, offsetX = 0, offsetY = -10, width = null, height = 5) {
     if (!entity || typeof entity.currentHealth === "undefined" || typeof entity.maxHealth === "undefined") {
@@ -43,33 +43,37 @@ class Tank {
     this.game = game;
     this.x = x;
     this.y = y;
+
     this.width = 35;
     this.height = 30;
     this.speed = 3;
-    this.facing = 0; // 0=left, 1=right
-    this.state = 0;  // 0=idle, 1=walking
-    this.attacks = 0; // 0=none, 1=melee, 2=shoot
-    this.dead = false;
 
+    // Directions: 0=left, 1=right
+    this.facing = 0;
+    // States: 0=idle, 1=walking
+    this.state = 0;
+    // Attacks: 0=none, 1=melee, 2=shoot
+    this.attacks = 0;
+
+    this.dead = false;
     this.currentHealth = 100;
     this.maxHealth = 100;
     this.healthBar = new HealthBar(this);
 
-    // === 1-second cooldown for the beam ===
+    // 1-second cooldown for the beam
     this.beamCooldown = 0;
 
     this.spritesheet = ASSET_MANAGER.getAsset("./Megaman sprite.png");
+    this.animations = []; // 3D array: [state][facing][attack]
 
-    // A 3D array for animations: [state][facing][attackType]
-    this.animations = [];
     this.loadAnimations(this.spritesheet);
   }
 
   loadAnimations(spritesheet) {
-    // We now have 3 attackTypes: 0=none, 1=melee, 2=shoot
-    for (let i = 0; i < 2; i++) { // 2 states: 0=idle, 1=walk
+    // 2 states × 2 facing × 3 attackTypes
+    for (let i = 0; i < 2; i++) {
       this.animations.push([]);
-      for (let j = 0; j < 2; j++) { // 2 facing: 0=left, 1=right
+      for (let j = 0; j < 2; j++) {
         this.animations[i][j] = [];
         for (let k = 0; k < 3; k++) {
           this.animations[i][j].push(null);
@@ -82,31 +86,33 @@ class Tank {
     // Idle (0), facing right (1), no attack (0)
     this.animations[0][1][0] = new Animator(spritesheet, 0, 61, 32, 30, 2, 0.4, 0, false, true);
 
-    // Walking (1), facing left (0)
+    // Walking (1), facing left (0), no attack (0)
     this.animations[1][0][0] = new Animator(spritesheet, 0, 31, 35, 30, 4, 0.4, 0, false, true);
-    // Walking (1), facing right (1)
+    // Walking (1), facing right (1), no attack (0)
     this.animations[1][1][0] = new Animator(spritesheet, 0, 0, 35, 30, 4, 0.4, 0, false, true);
 
     // Melee Attack animations (attackType=1)
-    this.animations[0][0][1] = new Animator(spritesheet, 0, 151, 35, 30, 4, 0.2, 0, false, true); // left idle
-    this.animations[0][1][1] = new Animator(spritesheet, 0, 91, 35, 30, 4, 0.2, 0, false, true);  // right idle
-    this.animations[1][0][1] = new Animator(spritesheet, 0, 151, 35, 30, 4, 0.2, 0, false, true); // left walk
-    this.animations[1][1][1] = new Animator(spritesheet, 0, 91, 35, 30, 4, 0.2, 0, false, true);  // right walk
+    // Set loop=false so we can do "play once"
+    this.animations[0][0][1] = new Animator(spritesheet, 0, 151, 35, 30, 4, 0.2, 0, false, false); // left idle
+    this.animations[0][1][1] = new Animator(spritesheet, 0, 91, 35, 30, 4, 0.2, 0, false, false);  // right idle
+    this.animations[1][0][1] = new Animator(spritesheet, 0, 151, 35, 30, 4, 0.2, 0, false, false); // left walk
+    this.animations[1][1][1] = new Animator(spritesheet, 0, 91, 35, 30, 4, 0.2, 0, false, false);  // right walk
 
-    // Shoot Attack animations (attackType=2)
+    // Shoot Attack animations (attackType=2), also loop=false
     this.animations[0][0][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, true, false);  // idle-shoot left
     this.animations[0][1][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, false, false); // idle-shoot right
     this.animations[1][0][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, true, false);  // walk-shoot left
     this.animations[1][1][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, false, false); // walk-shoot right
-
-    // ^ Notice the last parameter for “loop” is set to false for shooting
   }
 
+  /**
+   * Called once on pressing melee. We'll do "play once" approach for melee as well.
+   */
   meleeAttack() {
     const attackRadius = 50;
     const centerX = this.x + this.width / 2;
     const centerY = this.y + this.height / 2;
-    let dmg = this.meleeAttackDamage || 20; 
+    let dmg = this.meleeAttackDamage || 20;
 
     this.game.monsters.forEach(monster => {
       const mx = monster.x + monster.width / 2;
@@ -129,132 +135,117 @@ class Tank {
   }
 
   update() {
-    // Decrement cooldown each frame
+    // Decrement beam cooldown
     if (this.beamCooldown > 0) {
       this.beamCooldown -= this.game.clockTick;
     }
 
-    // ==============================
-    // 1) If we are in shooting state (attacks=2), let the animation finish
-    // ==============================
+    // 1) If currently shooting, let that animation finish
     if (this.attacks === 2) {
-      const anim = this.animations[this.state][this.facing][2];
-      // If the animation is done playing all frames...
-      if (anim.isDone()) {
-        // Reset it so next time we start from frame 0
-        anim.elapsedTime = 0;
-        // Return to no attack
+      const animShoot = this.animations[this.state][this.facing][2];
+      if (animShoot.isDone()) {
+        animShoot.elapsedTime = 0;
         this.attacks = 0;
       }
-      // We can still move around if we want:
+      // We can still move around
       this.handleMovement();
-      // Then exit update (so we don't override attacks=2 below).
       if (this.healthBar) this.healthBar.update();
       return;
     }
 
-    // =================================
-    // 2) Otherwise, check if we can shoot now
-    // =================================
-    if (this.game.keys.shoot && this.beamCooldown <= 0) {
-      // Decide if you want to allow walking-shoot or idle-shoot
-      // We'll set this.state to 1 if we want a "walk-shoot" row, 
-      // or 0 if we want "idle-shoot." For example:
-      // If any arrow key is pressed, we say walk; else idle:
-      this.state = (this.game.keys.left || this.game.keys.right || this.game.keys.up || this.game.keys.down) ? 1 : 0;
-
-      // Start shooting
-      this.attacks = 2;
-      // Force the shooting animation to begin at frame 0:
-      this.animations[this.state][this.facing][2].elapsedTime = 0;
-
-      // Fire the beam
-      this.shootBeam();
-      // 1-second cooldown
-      this.beamCooldown = 1;
-
-      // We continue on, letting the user move if desired
-      // We'll not revert to idle until the animation is done in the block above
+    // 2) If currently in melee, let that animation finish
+    if (this.attacks === 1) {
+      const animMelee = this.animations[this.state][this.facing][1];
+      if (animMelee.isDone()) {
+        animMelee.elapsedTime = 0;
+        this.attacks = 0;
+      }
+      // We can still move around
+      this.handleMovement();
+      if (this.healthBar) this.healthBar.update();
+      return;
     }
-    // ===================================
-    // 3) If not shooting, check melee, movement, idle, etc.
-    // ===================================
+
+    // 3) Not in the middle of an attack => check new inputs
+    if (this.game.keys.shoot && this.beamCooldown <= 0) {
+      // Decide if we appear “walk-shoot” or “idle-shoot”
+      this.state = (this.game.keys.left || this.game.keys.right || this.game.keys.up || this.game.keys.down) ? 1 : 0;
+      this.attacks = 2;
+      this.animations[this.state][this.facing][2].elapsedTime = 0;
+      this.shootBeam();
+      this.beamCooldown = 1;
+    }
     else if (this.game.keys.melee) {
-      // Decide if you can override movement with melee, or do you want partial movement?
-      // For simplicity:
-      this.state = 1;
+      this.state = 1; 
       this.attacks = 1;
+      this.animations[this.state][this.facing][1].elapsedTime = 0;
       this.meleeAttack();
-    } else {
-      // If no shoot or melee, handle normal movement
+    }
+    else {
+      // Just move around normally
       this.handleMovement();
     }
 
     if (this.healthBar) this.healthBar.update();
   }
 
-  /**
-   * A helper so you can continue moving even if you’re in a shooting or melee state.
-   * Right now, we only call this if we’re not in the middle of a single uninterruptible animation (attacks=2).
-   * If you want to allow movement while shooting, call handleMovement() in the shooting block too.
-   */
   handleMovement() {
     let moving = false;
 
-    // This is your existing movement logic:
+    // EXACT same movement checks as before,
+    // but only set attacks=0 if not in the middle of an attack (2=shoot, 1=melee).
     if (this.game.keys.left && this.game.keys.right && this.game.keys.up) {
       this.state = 1;
       this.facing = 0;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     } else if (this.game.keys.left && this.game.keys.right && this.game.keys.down) {
       this.state = 1;
       this.facing = 1;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     } else if (this.game.keys.up && this.game.keys.down && this.game.keys.right) {
       this.state = 1;
       this.facing = 1;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     } else if (this.game.keys.up && this.game.keys.down && this.game.keys.left) {
       this.state = 1;
       this.facing = 0;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     } else if (this.game.keys.up && this.game.keys.down) {
       this.state = 0;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
     } else if (this.game.keys.left && this.game.keys.right) {
       this.state = 0;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
     } else if (this.game.keys.up && this.game.keys.down && this.game.keys.left && this.game.keys.right) {
       this.state = 0;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = false;
     } else if (this.game.keys.left && !this.game.keys.right) {
       this.state = 1;
       this.facing = 0;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     } else if (this.game.keys.right && !this.game.keys.left) {
       this.state = 1;
       this.facing = 1;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     } else if (this.game.keys.up && !this.game.keys.down) {
       this.state = 1;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     } else if (this.game.keys.down && !this.game.keys.up) {
       this.state = 1;
-      this.attacks = 0;
+      if (this.attacks !== 2 && this.attacks !== 1) this.attacks = 0;
       moving = true;
     }
 
     if (!moving) {
       this.state = 0;
-      // only set attacks=0 if not shooting or melee
       if (this.attacks !== 2 && this.attacks !== 1) {
         this.attacks = 0;
       }
@@ -262,15 +253,31 @@ class Tank {
   }
 
   draw(ctx) {
-    // Grab the correct animator
     const anim = this.animations[this.state][this.facing][this.attacks];
-    if (anim) {
-      anim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
-    } else {
-      // fallback if something’s missing
+    if (!anim) {
+      // Fallback if something's missing
       ctx.fillStyle = "blue";
       ctx.fillRect(this.x, this.y, this.width, this.height);
+      if (this.healthBar) this.healthBar.draw(ctx);
+      return;
     }
+
+    // Mirror the sprite ONLY if shooting left
+    if (this.attacks === 2 && this.facing === 0) {
+      ctx.save();
+      const centerX = this.x + this.width / 2;
+      const centerY = this.y + this.height / 2;
+      ctx.translate(centerX, centerY);
+      ctx.scale(-1, 1);
+      ctx.translate(-centerX, -centerY);
+
+      anim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+      ctx.restore();
+    } else {
+      // Normal draw for everything else
+      anim.drawFrame(this.game.clockTick, ctx, this.x, this.y);
+    }
+
     if (this.healthBar) this.healthBar.draw(ctx);
   }
 }
