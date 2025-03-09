@@ -1,3 +1,5 @@
+// game.js
+
 class Game {
   constructor() {
     this.canvas = document.getElementById("gameCanvas");
@@ -7,24 +9,23 @@ class Game {
     // ===================[ NEW: MENU STATE ]===================
     this.gameState = "MENU"; // "MENU" or "PLAY"
     this.selectedDifficulty = null;
-    // We won't generate the maze/spawn monsters until after user picks difficulty.
 
-    // Default settings (changed once user picks difficulty)
+    // Maze defaults; changed once user picks difficulty.
     this.mazeRows = 10;
     this.mazeCols = 10;
     this.meleeDamage = 20;
 
-    // Entity Holder
+    // Entities
     this.entities = [];
 
-    // Demo chest (if needed)
+    // A demonstration chest in the center if needed
     this.chest = {
-      x: Math.floor(this.MAP_COLS / 2) * this.TILE_SIZE,
-      y: Math.floor(this.MAP_ROWS / 2) * this.TILE_SIZE,
+      x: 0,
+      y: 0,
       width: 16,
       height: 16,
     };
-    // Menu button rectangles:
+    // Menu buttons
     this.easyButton   = { x: 400, y: 200, width: 100, height: 40 };
     this.mediumButton = { x: 400, y: 250, width: 100, height: 40 };
     this.hardButton   = { x: 400, y: 300, width: 100, height: 40 };
@@ -33,19 +34,15 @@ class Game {
     // Input keys
     this.keys = { up: false, down: false, left: false, right: false, melee: false, shoot: false };
 
-    // The main objects we create AFTER difficulty is chosen:
+    // Main game world stuff: map layout, monsters, hero, camera
     this.mapLayout = null;
     this.MAP_ROWS = 0;
     this.MAP_COLS = 0;
     this.mapWidth = 0;
     this.mapHeight = 0;
-
-    // Player (Tank) / camera
-    this.tank = null; 
-    this.camera = null; 
+    this.tank = null;
+    this.camera = null;
     this.activeHero = null;
-
-    // Monster array
     this.monsters = [];
 
     // For controlling the main loop
@@ -58,11 +55,13 @@ class Game {
     this.winArea = null; 
     this.confettiParticles = [];
     this.playAgainButton = null;
-    
+
+    // ===== NEW: Projectiles array =====
+    this.projectiles = []; // <--- We store Beam objects here
   }
 
   addEntity(entity) {
-      this.entities.push(entity);
+    this.entities.push(entity);
   }
 
   init() {
@@ -83,7 +82,7 @@ class Game {
       if (e.key === "ArrowRight" || e.key === "d") this.keys.right = false;
     });
 
-    // Disable context menu on right-click (for shooting, etc.)
+    // Prevent context menu on right-click
     this.canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Mouse handling for menu or in-game
@@ -91,14 +90,17 @@ class Game {
       if (this.gameState === "MENU") {
         this.handleMenuClick(e);
       } else {
-        // In-game logic
-        if (e.button === 0) { // Left-click => melee
+        // In-game
+        if (e.button === 0) { 
+          // Left-click => melee
           console.log("Melee triggered!");
           this.keys.melee = true;
+          // If you want an immediate call to Tank's meleeAttack, do so here:
           if (this.activeHero && this.activeHero.meleeAttack) {
             this.activeHero.meleeAttack();
           }
-        } else if (e.button === 2) { // Right-click => shoot
+        } else if (e.button === 2) {
+          // Right-click => shoot
           console.log("Shoot triggered!");
           this.keys.shoot = true;
         }
@@ -107,7 +109,7 @@ class Game {
 
     this.canvas.addEventListener("mouseup", (e) => {
       if (this.gameState === "MENU") {
-        // No-op
+        return;
       } else {
         // In-game
         if (e.button === 0) this.keys.melee = false;
@@ -119,7 +121,7 @@ class Game {
     requestAnimationFrame(() => this.gameLoop());
   }
 
-  // ===============[ Called after user picks difficulty + hits Play ]==============
+  // After user picks difficulty + hits Play
   initGameWorld() {
     console.log("initGameWorld with rows =", this.mazeRows, 
                 "cols =", this.mazeCols, 
@@ -134,15 +136,13 @@ class Game {
 
     // Create the player tank
     this.tank = new Tank(this, 1 * this.TILE_SIZE, 1 * this.TILE_SIZE);
-    // Assign the chosen meleeDamage to the tank
     this.tank.meleeAttackDamage = this.meleeDamage; 
-
     this.activeHero = this.tank;
 
     // Create the camera
     this.camera = new Camera(this.canvas.width, this.canvas.height, this.mapWidth, this.mapHeight);
 
-    // Define the win area if you want it to be bottom-right tile
+    // Win area at bottom-right
     this.winArea = {
       x: (this.MAP_COLS - 2) * this.TILE_SIZE,
       y: (this.MAP_ROWS - 2) * this.TILE_SIZE,
@@ -150,23 +150,21 @@ class Game {
       height: this.TILE_SIZE,
     };
 
-    // Now spawn monsters
+    // Spawn monsters
     this.spawnMonsters();
   }
 
   spawnMonsters() {
-    // Spawn Goblin Groups
+    // Goblin groups
     for (let i = 0; i < this.goblinGroupCount; i++) {
       this.spawnGoblinGroup();
     }
-  
-    // Spawn Slimes
+    // Slimes
     for (let i = 0; i < this.slimeCount; i++) {
       let placed = false;
       while (!placed) {
         const row = Math.floor(Math.random() * this.MAP_ROWS);
         const col = Math.floor(Math.random() * this.MAP_COLS);
-  
         if (!this.isWallTile(row, col) && (row > 2 || col > 2)) {
           const x = col * this.TILE_SIZE;
           const y = row * this.TILE_SIZE;
@@ -178,7 +176,6 @@ class Game {
     }
   }
   
-  
   spawnGoblinGroup() {
     let placed = false;
     let groupX, groupY;
@@ -187,22 +184,18 @@ class Game {
     while (!placed && tries < 500) {
       const row = Math.floor(Math.random() * this.MAP_ROWS);
       const col = Math.floor(Math.random() * this.MAP_COLS);
-  
-      // isWallTile(row, col) => true if it's a wall
-      // We want a corridor tile => !isWallTile
       if (!this.isWallTile(row, col)) {
         groupX = col * this.TILE_SIZE;
         groupY = row * this.TILE_SIZE;
-        placed = true; // Found a valid spot
+        placed = true;
       }
       tries++;
     }
-  
     if (!placed) {
       console.log("Couldn't find a valid tile for Goblin group!");
       return; 
     }
-  
+
     console.log(`Spawn Goblin Leader at (${groupX}, ${groupY})`);
     // Leader
     let leader = new Goblin(this, groupX, groupY, true);
@@ -217,10 +210,8 @@ class Game {
       this.monsters.push(follower);
     }
   }
-  
-  
 
-  // ===============[ Main Loop ]==============
+  // Main Loop
   gameLoop() {
     const currentTime = performance.now();
     this.clockTick = (currentTime - this.lastTime) / 1000;
@@ -235,17 +226,16 @@ class Game {
 
   update() {
     if (this.gameState === "MENU") {
-      // Do not update the game world in the menu
       return;
     }
 
-    // ============ Normal in-game update ============
+    // Check if hero died
     if (this.activeHero.currentHealth <= 0 && !this.gameOverFlag) {
       this.gameOver();
       return;
     }
 
-    // Check for win condition
+    // Check for win
     if (
       this.tank.x + this.tank.width > this.winArea.x &&
       this.tank.y + this.tank.height > this.winArea.y
@@ -270,8 +260,18 @@ class Game {
       this.tank.y = newY;
     }
 
+    // Update tank
     this.tank.update();
+
+    // Update monsters
     this.monsters.forEach(m => m.update(this.clockTick));
+
+    // Update projectiles (NEW)
+    this.projectiles.forEach(p => p.update(this.clockTick));
+    // Remove any beams marked for removal
+    this.projectiles = this.projectiles.filter(p => !p.removeFromWorld);
+
+    // Update camera
     this.camera.update(this.tank);
   }
 
@@ -281,7 +281,6 @@ class Game {
       return;
     }
 
-    // ============ In-game draw ============
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.save();
     this.ctx.translate(-this.camera.x, -this.camera.y);
@@ -311,6 +310,7 @@ class Game {
       }
     }
 
+    // Draw win area if not already won
     if (!this.win) {
       this.ctx.fillStyle = "gold";
       this.ctx.fillRect(this.winArea.x, this.winArea.y, this.winArea.width, this.winArea.height);
@@ -318,15 +318,19 @@ class Game {
       this.ctx.strokeRect(this.winArea.x, this.winArea.y, this.winArea.width, this.winArea.height);
     }
 
+    // Draw monsters
     this.monsters.forEach(m => m.draw(this.ctx));
 
-    // chest
-    // If you have a chest, define it if needed.
-    // e.g.:
+    // Draw chest (if needed)
     // this.ctx.fillStyle = "gold";
     // this.ctx.fillRect(this.chest.x, this.chest.y, this.chest.width, this.chest.height);
 
+    // Draw tank
     this.tank.draw(this.ctx);
+
+    // ===== NEW: Draw projectiles =====
+    this.projectiles.forEach(p => p.draw(this.ctx));
+
     this.ctx.restore();
   }
 
@@ -341,7 +345,7 @@ class Game {
     this.ctx.textAlign = "center";
     this.ctx.fillText("Maze Game Menu", this.canvas.width / 2, 100);
 
-    // Draw difficulty buttons + play button
+    // Difficulty + Play buttons
     this.drawButton(this.easyButton,   "Easy");
     this.drawButton(this.mediumButton, "Medium");
     this.drawButton(this.hardButton,   "Hard");
@@ -394,27 +398,27 @@ class Game {
             this.mazeRows = 20;
             this.mazeCols = 20;
             this.meleeDamage = 20;
-            this.goblinGroupCount = 30; // <-- spawn 30 goblin groups
-            this.slimeCount = 30;       // <-- spawn 30 slimes
+            this.goblinGroupCount = 30;
+            this.slimeCount = 30;
             break;
   
           case "medium":
             this.mazeRows = 40;
             this.mazeCols = 40;
             this.meleeDamage = 10;
-            this.goblinGroupCount = 65; // <-- spawn 65 goblin groups
-            this.slimeCount = 65;       // <-- spawn 65 slimes
+            this.goblinGroupCount = 65;
+            this.slimeCount = 65;
             break;
   
           case "hard":
             this.mazeRows = 55;
             this.mazeCols = 55;
             this.meleeDamage = 5;
-            this.goblinGroupCount = 100; // <-- spawn 100 goblin groups
-            this.slimeCount = 100;       // <-- spawn 100 slimes
+            this.goblinGroupCount = 100;
+            this.slimeCount = 100;
             break;
         }
-        // Proceed to init the game with chosen difficulty
+        // Start the game
         this.initGameWorld();
         this.gameState = "PLAY";
       } else {
@@ -422,7 +426,6 @@ class Game {
       }
     }
   }
-  
 
   isInsideButton(mx, my, btn) {
     return (mx >= btn.x && mx <= btn.x + btn.width && 
@@ -557,4 +560,5 @@ class Game {
   }
 }
 
+// Expose globally
 window.Game = Game;
