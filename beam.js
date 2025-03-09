@@ -59,7 +59,7 @@ class Beam {
     }
   
     draw(ctx) {
-      ctx.fillStyle = "yellow";
+      ctx.fillStyle = "blue";
       ctx.fillRect(this.x, this.y, this.width, this.height);
     }
   }

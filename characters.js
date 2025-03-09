@@ -99,10 +99,10 @@ class Tank {
     this.animations[1][1][1] = new Animator(spritesheet, 0, 91, 35, 30, 4, 0.2, 0, false, false);  // right walk
 
     // Shoot Attack animations (attackType=2), also loop=false
-    this.animations[0][0][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, true, false);  // idle-shoot left
-    this.animations[0][1][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, false, false); // idle-shoot right
-    this.animations[1][0][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, true, false);  // walk-shoot left
-    this.animations[1][1][2] = new Animator(spritesheet, 0, 121, 36, 29, 4, 0.1, 0, false, false); // walk-shoot right
+    this.animations[0][0][2] = new Animator(spritesheet, 0, 121, 35, 29, 4, 0.1, 0, true, false);  // idle-shoot left
+    this.animations[0][1][2] = new Animator(spritesheet, 0, 121, 35, 29, 4, 0.1, 0, false, false); // idle-shoot right
+    this.animations[1][0][2] = new Animator(spritesheet, 0, 121, 35, 29, 4, 0.1, 0, true, false);  // walk-shoot left
+    this.animations[1][1][2] = new Animator(spritesheet, 0, 121, 35, 29, 4, 0.1, 0, false, false); // walk-shoot right
   }
 
   /**
@@ -173,7 +173,7 @@ class Tank {
       this.attacks = 2;
       this.animations[this.state][this.facing][2].elapsedTime = 0;
       this.shootBeam();
-      this.beamCooldown = 1;
+      this.beamCooldown = 0.25;
     }
     else if (this.game.keys.melee) {
       this.state = 1; 
