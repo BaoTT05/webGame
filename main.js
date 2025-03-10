@@ -6,6 +6,8 @@ window.onload = () => {
     ASSET_MANAGER.queueDownload("./Megaman sprite.png");
     ASSET_MANAGER.queueDownload("./grass.png");
     ASSET_MANAGER.queueDownload("./tree.png");
+    ASSET_MANAGER.queueDownload("./slime.png");
+
 
     // Ensure assets are loaded before starting the game
     ASSET_MANAGER.downloadAll(() => {

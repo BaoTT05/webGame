@@ -1,5 +1,3 @@
-// game.js
-
 class Game {
   constructor() {
     this.canvas = document.getElementById("gameCanvas");
@@ -57,7 +55,7 @@ class Game {
     this.playAgainButton = null;
 
     // ===== NEW: Projectiles array =====
-    this.projectiles = []; // <--- We store Beam objects here
+    this.projectiles = [];
   }
 
   addEntity(entity) {
@@ -95,7 +93,7 @@ class Game {
           // Left-click => melee
           console.log("Melee triggered!");
           this.keys.melee = true;
-          // If you want an immediate call to Tank's meleeAttack, do so here:
+          // Optionally: if you want immediate call to Tank's meleeAttack, do it here
           if (this.activeHero && this.activeHero.meleeAttack) {
             this.activeHero.meleeAttack();
           }
@@ -154,28 +152,44 @@ class Game {
     this.spawnMonsters();
   }
 
+  /**
+   * Spawns monsters into the maze. Goblins first, then Slimes.
+   */
   spawnMonsters() {
     // Goblin groups
     for (let i = 0; i < this.goblinGroupCount; i++) {
       this.spawnGoblinGroup();
     }
+
     // Slimes
+    // [UPDATE FOR BIGGER SLIME] – We'll try up to 500 times per slime to place it
+    // where it won't collide with walls. That way, it won't spawn stuck.
     for (let i = 0; i < this.slimeCount; i++) {
       let placed = false;
-      while (!placed) {
+      let tries = 0;
+      while (!placed && tries < 500) {
         const row = Math.floor(Math.random() * this.MAP_ROWS);
         const col = Math.floor(Math.random() * this.MAP_COLS);
-        if (!this.isWallTile(row, col) && (row > 2 || col > 2)) {
+
+        if (!this.isWallTile(row, col)) {
           const x = col * this.TILE_SIZE;
           const y = row * this.TILE_SIZE;
-          let slime = new Slime(this, x, y);
-          this.monsters.push(slime);
-          placed = true;
+          // Slime default size is 64 (bigger). Check if that overlaps a wall
+          if (!this.hitsWall(x, y, 64, 64)) {
+            // Place the Slime
+            let slime = new Slime(this, x, y, 64);
+            this.monsters.push(slime);
+            placed = true;
+          }
         }
+        tries++;
+      }
+      if (!placed) {
+        console.log("Could not place a Slime after 500 tries; skipping.");
       }
     }
   }
-  
+
   spawnGoblinGroup() {
     let placed = false;
     let groupX, groupY;
@@ -200,7 +214,7 @@ class Game {
     // Leader
     let leader = new Goblin(this, groupX, groupY, true);
     this.monsters.push(leader);
-  
+
     // 4 followers
     for (let i = 0; i < 4; i++) {
       let fx = groupX + Math.random() * 10;

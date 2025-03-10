@@ -1,7 +1,6 @@
 /**
  * monster.js
- * Base Monster class only.
- * No Goblin or Slime definitions here.
+ * Base Monster class only. Slime & Goblin both extend this.
  */
 
 class Monster {
@@ -22,16 +21,15 @@ class Monster {
   }
 
   update(deltaTime) {
-    // By default, do nothing. Subclasses override.
+    // By default, do nothing. Subclasses (Slime, Goblin) override as needed.
   }
 
   draw(ctx) {
-    // Draw a placeholder purple rectangle
-    // Subclasses typically override this to look different.
+    // Draw a placeholder purple rectangle if no sprite:
     ctx.fillStyle = "purple";
     ctx.fillRect(this.x, this.y, this.width, this.height);
 
-    // Draw a simple health bar above the monster
+    // Simple health bar
     ctx.fillStyle = "red";
     const hpWidth = this.width * (this.currentHealth / this.maxHealth);
     ctx.fillRect(this.x, this.y - 10, hpWidth, 5);
@@ -48,7 +46,7 @@ class Monster {
   }
 
   onDeath() {
-    // Remove monster from the game's monsters array
+    // Remove from the game's monsters array
     const idx = this.game.monsters.indexOf(this);
     if (idx > -1) {
       this.game.monsters.splice(idx, 1);
@@ -83,5 +81,5 @@ class Monster {
   }
 }
 
-// Expose globally (if you are not using ES modules)
+// Expose globally (if not using modules)
 window.Monster = Monster;
