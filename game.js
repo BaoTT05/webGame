@@ -2,7 +2,7 @@
  * game.js
  * Changes:
  *  - Floor Tank x,y after movement => no subpixel stutter
- *  - Keep the camera changes in camera.js
+ *  - Updated hitsWall() to use (w - 0.01) / (h - 0.01) so Goblins won't get stuck so easily.
  */
 
 class Game {
@@ -235,7 +235,7 @@ class Game {
     this.projectiles.forEach(p => p.update(this.clockTick));
     this.projectiles = this.projectiles.filter(p => !p.removeFromWorld);
 
-    // Update camera (it floors in camera.js)
+    // Update camera
     this.camera.update(this.tank);
   }
 
@@ -294,8 +294,6 @@ class Game {
 
     this.ctx.restore();
   }
-
-  // --- [Menu, collision, gameOver, etc. remain the same] ---
 
   drawMenu() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -387,11 +385,15 @@ class Game {
             my >= btn.y && my <= btn.y + btn.height);
   }
 
+  /**
+   * UPDATED: subtract a small fraction (0.01) instead of 1,
+   * to avoid off-by-one collisions along edges. 
+   */
   hitsWall(xPos, yPos, w, h) {
-    const leftTile = Math.floor(xPos / this.TILE_SIZE);
-    const rightTile = Math.floor((xPos + w - 1) / this.TILE_SIZE);
-    const topTile = Math.floor(yPos / this.TILE_SIZE);
-    const bottomTile = Math.floor((yPos + h - 1) / this.TILE_SIZE);
+    const leftTile   = Math.floor(xPos / this.TILE_SIZE);
+    const rightTile  = Math.floor((xPos + w - 0.01) / this.TILE_SIZE);
+    const topTile    = Math.floor(yPos / this.TILE_SIZE);
+    const bottomTile = Math.floor((yPos + h - 0.01) / this.TILE_SIZE);
 
     for (let row = topTile; row <= bottomTile; row++) {
       for (let col = leftTile; col <= rightTile; col++) {
