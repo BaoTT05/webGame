@@ -7,6 +7,9 @@ window.onload = () => {
     ASSET_MANAGER.queueDownload("./grass.png");
     ASSET_MANAGER.queueDownload("./tree.png");
     ASSET_MANAGER.queueDownload("./slime.png");
+    ASSET_MANAGER.queueDownload("./goblin.png");
+    ASSET_MANAGER.queueDownload("./goblinLeader.png");
+
 
 
     // Ensure assets are loaded before starting the game
