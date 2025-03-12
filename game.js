@@ -247,7 +247,7 @@ class Game {
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Since camera.x and camera.y are already floored, 
+    // Since camera.x and camera.y are already floored,
     // just do normal translation here:
     this.ctx.save();
     this.ctx.translate(-this.camera.x, -this.camera.y);
@@ -296,19 +296,25 @@ class Game {
   }
 
   drawMenu() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = "#333";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    const backgroundImage = new Image();
+    backgroundImage.src = 'mainMenuBackground.jpeg';
 
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "60px Arial";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText("Maze Game Menu", this.canvas.width / 2, 100);
+    backgroundImage.onload = () => {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.drawButton(this.easyButton,   "Easy");
-    this.drawButton(this.mediumButton, "Medium");
-    this.drawButton(this.hardButton,   "Hard");
-    this.drawButton(this.playButton,   "Play");
+        this.ctx.drawImage(backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "60px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("Maze Game Menu", this.canvas.width / 2, 100);
+
+        // Draw the buttons
+        this.drawButton(this.easyButton, "Easy");
+        this.drawButton(this.mediumButton, "Medium");
+        this.drawButton(this.hardButton, "Hard");
+        this.drawButton(this.playButton, "Play");
+    };
   }
 
   drawButton(btn, label) {

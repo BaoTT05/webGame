@@ -49,7 +49,7 @@ class Goblin extends Monster {
               frameCount,
               frameDuration,
               0,
-              false,
+              true,
               true
           ),
           walkRight: new Animator(
@@ -61,7 +61,7 @@ class Goblin extends Monster {
               frameCount,
               frameDuration,
               0,
-              false,
+              true,
               true
           )
       };
