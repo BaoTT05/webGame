@@ -30,10 +30,10 @@ class Animator {
         );
     
         // If you have a debug parameter defined in PARAMS, draw a rectangle around the sprite
-        if (typeof PARAMS !== "undefined" && PARAMS.DEBUG) {
-            ctx.strokeStyle = 'Green';
-            ctx.strokeRect(x, y, this.width * scale, this.height * scale);
-        }
+        //if (typeof PARAMS !== "undefined" && PARAMS.DEBUG) {
+          //  ctx.strokeStyle = 'Green';
+           // ctx.strokeRect(x, y, this.width * scale, this.height * scale);
+        //}
         }
     
     currentFrame() {

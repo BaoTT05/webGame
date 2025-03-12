@@ -206,10 +206,10 @@ class Goblin extends Monster {
       anim.drawFrame(this.game.clockTick, ctx, drawX, drawY, finalScale);
     }
 
-    if (PARAMS && PARAMS.DEBUG) {
-      ctx.strokeStyle = "lime";
-      ctx.strokeRect(this.x, this.y, this.width, this.height);
-    }
+   // if (PARAMS && PARAMS.DEBUG) {
+   //   ctx.strokeStyle = "lime";
+    //  ctx.strokeRect(this.x, this.y, this.width, this.height);
+  //  }
 
     const hpRatio = Math.max(0, this.currentHealth / this.maxHealth);
     ctx.fillStyle = "red";
