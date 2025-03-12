@@ -21,10 +21,10 @@ class Game {
     this.entities = [];
 
     this.chest = { x: 0, y: 0, width: 16, height: 16 };
-    this.easyButton   = { x: 400, y: 200, width: 100, height: 40 };
-    this.mediumButton = { x: 400, y: 250, width: 100, height: 40 };
-    this.hardButton   = { x: 400, y: 300, width: 100, height: 40 };
-    this.playButton   = { x: 400, y: 400, width: 100, height: 50 };
+    this.easyButton   = { x: 475, y: 200, width: 100, height: 40 };
+    this.mediumButton = { x: 475, y: 250, width: 100, height: 40 };
+    this.hardButton   = { x: 475, y: 300, width: 100, height: 40 };
+    this.playButton   = { x: 475, y: 400, width: 100, height: 50 };
 
     this.keys = { up: false, down: false, left: false, right: false, melee: false, shoot: false };
 
