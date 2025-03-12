@@ -307,7 +307,7 @@ class Game {
         this.ctx.fillStyle = "white";
         this.ctx.font = "60px Arial";
         this.ctx.textAlign = "center";
-        this.ctx.fillText("Maze Game Menu", this.canvas.width / 2, 100);
+        this.ctx.fillText("Mega Maze Mayhem", this.canvas.width / 2, 100);
 
         // Draw the buttons
         this.drawButton(this.easyButton, "Easy");
