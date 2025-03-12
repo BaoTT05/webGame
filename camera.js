@@ -1,4 +1,7 @@
-console.log("Loaded camera.js!");
+/**
+ * camera.js
+ * Updated so we floor the final this.x and this.y => reduces stutter.
+ */
 
 class Camera {
   constructor(viewWidth, viewHeight, mapWidth, mapHeight) {
@@ -10,32 +13,46 @@ class Camera {
     this.mapHeight = mapHeight;
   }
 
-  centerOn(player) {
-    // Center on player's center
-    this.x = player.x + player.width / 2 - this.viewWidth / 2;
-    this.y = player.y + player.height / 2 - this.viewHeight / 2;
+  update(target) {
+    const marginX = this.viewWidth * 0.4;
+    const marginY = this.viewHeight * 0.4;
 
-    // Clamp horizontally
-    if (this.mapWidth > this.viewWidth) {
-      if (this.x < 0) this.x = 0;
-      if (this.x + this.viewWidth > this.mapWidth) {
-        this.x = this.mapWidth - this.viewWidth;
-      }
-    } else {
-      this.x = Math.max((this.mapWidth - this.viewWidth) / 2, 0);
+    let targetScreenX = target.x - this.x;
+    let targetScreenY = target.y - this.y;
+
+    // left
+    if (targetScreenX < marginX) {
+      this.x = target.x - marginX;
+    }
+    // right
+    else if (targetScreenX > this.viewWidth - marginX - target.width) {
+      this.x = target.x - (this.viewWidth - marginX - target.width);
     }
 
-    // Clamp vertically
-    if (this.mapHeight > this.viewHeight) {
-      if (this.y < 0) this.y = 0;
-      if (this.y + this.viewHeight > this.mapHeight) {
-        this.y = this.mapHeight - this.viewHeight;
-      }
-    } else {
-      this.y = Math.max((this.mapHeight - this.viewHeight) / 2, 0);
+    // up
+    if (targetScreenY < marginY) {
+      this.y = target.y - marginY;
     }
+    // down
+    else if (targetScreenY > this.viewHeight - marginY - target.height) {
+      this.y = target.y - (this.viewHeight - marginY - target.height);
+    }
+
+    // Clamp
+    if (this.x < 0) this.x = 0;
+    if (this.y < 0) this.y = 0;
+    if (this.x + this.viewWidth > this.mapWidth) {
+      this.x = this.mapWidth - this.viewWidth;
+    }
+    if (this.y + this.viewHeight > this.mapHeight) {
+      this.y = this.mapHeight - this.viewHeight;
+    }
+
+    // Floor camera coords => no half pixels => less jitter
+    this.x = Math.floor(this.x);
+    this.y = Math.floor(this.y);
   }
 }
 
-// Make it accessible in the global scope (if not using modules)
+// Make it accessible in global scope
 window.Camera = Camera;
