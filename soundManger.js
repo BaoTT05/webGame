@@ -7,3 +7,7 @@ function playSoundEffect(effect) {
     var sound = new Audio(effect);
     sound.play();
 }
+
+document.addEventListener('click', function() {
+    bgMusic.play();
+});
