@@ -1,0 +1,77 @@
+/* game.css */
+
+/* Use the fancy Press Start 2P font (from Google Fonts) */
+body {
+    margin: 0;
+    background: #222;
+    font-family: 'Press Start 2P', sans-serif;
+  }
+  
+  .game-container {
+    position: relative; /* needed so overlays can absolutely-position on top */
+    width: 1040px;
+    margin: 0 auto;      /* center container horizontally */
+  }
+  
+  #gameCanvas {
+    display: block;
+    background: #000;
+    border: 2px solid #555;
+  }
+  
+  /* ===== Overlay Styling ===== */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1040px; /* match your canvas size */
+    height: 720px; /* match your canvas size */
+    background: rgba(0, 0, 0, 0.7); /* semi-transparent black */
+    color: #fff;
+    text-align: center;
+    padding-top: 100px; /* space above heading */
+    display: none;      /* hidden by default */
+    z-index: 999;       /* on top of canvas */
+  }
+  
+  .overlay.active {
+    display: block;     /* shown when "active" class is present */
+  }
+  
+  .overlay h1 {
+    font-size: 42px;
+    margin-bottom: 20px;
+    color: #ffe100;
+    text-shadow: 2px 2px #333;
+  }
+  
+  .overlay p {
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+  
+  /* Overlay buttons */
+  .overlay button {
+    display: inline-block;
+    margin: 10px;
+    padding: 12px 24px;
+    font-size: 16px;
+    background-color: #ffe100;
+    border: 2px solid #333;
+    color: #333;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+  }
+  
+  .overlay button:hover {
+    background-color: #fff;
+    transform: scale(1.05);
+  }
+  
+  /* Example: add a confetti GIF background to the win overlay, if you like */
+  #winOverlay {
+    background: rgba(0,0,0, 0.6)
+      url("https://media.giphy.com/media/BJJyz4NcZ6rTy/giphy.gif") center center;
+    background-size: cover;
+  }
+  
