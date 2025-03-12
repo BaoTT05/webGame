@@ -409,13 +409,80 @@ class Game {
   }
 
   gameOver() {
+    if (this.gameOverFlag) return;
     this.gameOverFlag = true;
-    setTimeout(() => {
-      if (confirm("Game Over! Restart?")) {
-        location.reload();
-      }
-    }, 0);
-  }
+    console.log("You Died!");
+
+    // Define the "Play Again" button
+    this.playAgainButton = {
+      x: this.canvas.width / 2 - 100,
+      y: this.canvas.height / 2 + 100,
+      width: 200,
+      height: 50,
+    };
+
+    // Add click event listener for the "Play Again" button
+    this.canvas.addEventListener("click", this.handleGameOverClickBound = this.handleGameOverClick.bind(this));
+
+    // Start the game over screen loop
+    requestAnimationFrame(() => this.gameOverScreenLoop());
+}
+
+gameOverScreenLoop() {
+    // Clear the canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw the "You Died" message
+    this.ctx.fillStyle = "red";
+    this.ctx.font = "60px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("You Died!", this.canvas.width / 2, this.canvas.height / 2 - 30);
+
+    // Draw the "Play Again" button
+    if (this.playAgainButton) {
+      this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      this.ctx.fillRect(
+        this.playAgainButton.x,
+        this.playAgainButton.y,
+        this.playAgainButton.width,
+        this.playAgainButton.height
+      );
+      this.ctx.strokeStyle = "red";
+      this.ctx.lineWidth = 3;
+      this.ctx.strokeRect(
+        this.playAgainButton.x,
+        this.playAgainButton.y,
+        this.playAgainButton.width,
+        this.playAgainButton.height
+      );
+      this.ctx.fillStyle = "red";
+      this.ctx.font = "30px Arial";
+      this.ctx.fillText(
+        "Play Again",
+        this.canvas.width / 2,
+        this.playAgainButton.y + this.playAgainButton.height / 2 + 10
+      );
+    }
+
+    // Continue the loop
+    requestAnimationFrame(() => this.gameOverScreenLoop());
+}
+
+handleGameOverClick(e) {
+    if (!this.gameOverFlag || !this.playAgainButton) return;
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    if (
+      mouseX >= this.playAgainButton.x &&
+      mouseX <= this.playAgainButton.x + this.playAgainButton.width &&
+      mouseY >= this.playAgainButton.y &&
+      mouseY <= this.playAgainButton.y + this.playAgainButton.height
+    ) {
+      // Reload the game or go back to the main menu
+      location.reload(); // or this.goToMainMenu();
+    }
+}
 
   winGame() {
     if (this.win) return;
