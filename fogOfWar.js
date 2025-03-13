@@ -49,18 +49,31 @@ class FogOfWar {
      * using a compositing trick (destination-out).
      */
     reveal(centerX, centerY) {
-      this.fogCtx.save();
-      this.fogCtx.globalCompositeOperation = "destination-out";
-  
-      let spriteW = this.fogSprite.width;
-      let spriteH = this.fogSprite.height;
-      let drawX = centerX - spriteW / 2;
-      let drawY = centerY - spriteH / 2;
-      this.fogCtx.drawImage(this.fogSprite, drawX, drawY);
-  
-      this.fogCtx.restore();
-    }
-  
+        this.fogCtx.save();
+        this.fogCtx.globalCompositeOperation = "destination-out";
+      
+        const spriteW = this.fogSprite.width;
+        const spriteH = this.fogSprite.height;
+      
+        // Choose a scale factor. 2 means twice as large, 3 means triple, etc.
+        const scale = 2; // or 3, 4, etc.
+      
+        // Adjust drawX / drawY so the center lines up
+        const drawX = centerX - (spriteW * scale) / 2;
+        const drawY = centerY - (spriteH * scale) / 2;
+      
+        // Pass the new width/height to drawImage
+        this.fogCtx.drawImage(
+          this.fogSprite,
+          drawX, 
+          drawY, 
+          spriteW * scale, 
+          spriteH * scale
+        );
+      
+        this.fogCtx.restore();
+      }
+      
     /**
      * Called at the end of Game.draw(), after the map & entities.
      * Draws the fog overlay (with holes) at the correct camera offset.
