@@ -9,6 +9,8 @@ window.onload = () => {
     ASSET_MANAGER.queueDownload("./slime.png");
     ASSET_MANAGER.queueDownload("./goblin.png");
     ASSET_MANAGER.queueDownload("./goblinLeader.png");
+    ASSET_MANAGER.queueDownload("./fogofwar.png");
+
 
 
 

@@ -1,8 +1,7 @@
 /**
  * game.js
- * Changes:
- *  - Floor Tank x,y after movement => no subpixel stutter
- *  - Updated hitsWall() to use (w - 0.01) / (h - 0.01) so Goblins won't get stuck so easily.
+ * 
+ * Changes marked with (ADDED) to show how FogOfWar is integrated.
  */
 
 class Game {
@@ -124,6 +123,9 @@ class Game {
       height: this.TILE_SIZE,
     };
 
+    // (ADDED) Create FogOfWar instance, covering the entire map.
+    this.fogOfWar = new FogOfWar(this, this.mapWidth, this.mapHeight);
+
     this.spawnMonsters();
   }
 
@@ -221,7 +223,7 @@ class Game {
     if (this.keys.left) dx = -this.tank.speed;
     if (this.keys.right) dx = this.tank.speed;
 
-    // Separate-axis approach for the tank as well:
+    // Collisions
     let newX = this.tank.x + dx;
     if (!this.hitsWall(newX, this.tank.y, this.tank.width, this.tank.height)) {
       this.tank.x = newX;
@@ -231,21 +233,23 @@ class Game {
       this.tank.y = newY;
     }
 
-    // Floor final positions => reduce sub-pixel stutter
     this.tank.x = Math.floor(this.tank.x);
     this.tank.y = Math.floor(this.tank.y);
 
     this.tank.update();
 
-    // Update monsters
+    // Monsters
     this.monsters.forEach(m => m.update(this.clockTick));
 
-    // Update projectiles
+    // Projectiles
     this.projectiles.forEach(p => p.update(this.clockTick));
     this.projectiles = this.projectiles.filter(p => !p.removeFromWorld);
 
-    // Update camera
+    // Camera
     this.camera.update(this.tank);
+
+    // (ADDED) Update FogOfWar each frame
+    this.fogOfWar.update();
   }
 
   draw() {
@@ -256,12 +260,10 @@ class Game {
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Since camera.x and camera.y are already floored, 
-    // just do normal translation here:
     this.ctx.save();
     this.ctx.translate(-this.camera.x, -this.camera.y);
 
-    // Draw maze
+    // Maze
     for (let row = 0; row < this.MAP_ROWS; row++) {
       for (let col = 0; col < this.MAP_COLS; col++) {
         if (this.mapLayout[row][col] === 1) {
@@ -292,16 +294,19 @@ class Game {
       this.ctx.strokeRect(this.winArea.x, this.winArea.y, this.winArea.width, this.winArea.height);
     }
 
-    // Draw monsters
+    // Monsters
     this.monsters.forEach(m => m.draw(this.ctx));
 
-    // Draw tank
+    // Tank
     this.tank.draw(this.ctx);
 
-    // Draw projectiles
+    // Projectiles
     this.projectiles.forEach(p => p.draw(this.ctx));
 
     this.ctx.restore();
+
+    // (ADDED) Draw the fog overlay last
+    this.fogOfWar.draw(this.ctx);
   }
 
   drawMenu() {
@@ -394,10 +399,6 @@ class Game {
             my >= btn.y && my <= btn.y + btn.height);
   }
 
-  /**
-   * UPDATED: subtract a small fraction (0.01) instead of 1,
-   * to avoid off-by-one collisions along edges. 
-   */
   hitsWall(xPos, yPos, w, h) {
     const leftTile   = Math.floor(xPos / this.TILE_SIZE);
     const rightTile  = Math.floor((xPos + w - 0.01) / this.TILE_SIZE);
@@ -422,7 +423,6 @@ class Game {
     this.gameOverFlag = true;
     console.log("You Died!");
 
-    // Define the "Play Again" button
     this.playAgainButton = {
       x: this.canvas.width / 2 - 100,
       y: this.canvas.height / 2 + 100,
@@ -430,24 +430,18 @@ class Game {
       height: 50,
     };
 
-    // Add click event listener for the "Play Again" button
     this.canvas.addEventListener("click", this.handleGameOverClickBound = this.handleGameOverClick.bind(this));
-
-    // Start the game over screen loop
     requestAnimationFrame(() => this.gameOverScreenLoop());
-}
+  }
 
-gameOverScreenLoop() {
-    // Clear the canvas
+  gameOverScreenLoop() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Draw the "You Died" message
     this.ctx.fillStyle = "red";
     this.ctx.font = "60px Arial";
     this.ctx.textAlign = "center";
     this.ctx.fillText("You Died!", this.canvas.width / 2, this.canvas.height / 2 - 30);
 
-    // Draw the "Play Again" button
     if (this.playAgainButton) {
       this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
       this.ctx.fillRect(
@@ -473,11 +467,10 @@ gameOverScreenLoop() {
       );
     }
 
-    // Continue the loop
     requestAnimationFrame(() => this.gameOverScreenLoop());
-}
+  }
 
-handleGameOverClick(e) {
+  handleGameOverClick(e) {
     if (!this.gameOverFlag || !this.playAgainButton) return;
     const rect = this.canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -488,10 +481,9 @@ handleGameOverClick(e) {
       mouseY >= this.playAgainButton.y &&
       mouseY <= this.playAgainButton.y + this.playAgainButton.height
     ) {
-      // Reload the game or go back to the main menu
-      location.reload(); // or this.goToMainMenu();
+      location.reload();
     }
-}
+  }
 
   winGame() {
     if (this.win) return;
