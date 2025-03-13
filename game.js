@@ -48,6 +48,15 @@ class Game {
     this.playAgainButton = null;
 
     this.projectiles = [];
+    this.soundManager = new SoundManager();
+
+    // Start music after user interaction
+    document.addEventListener('click', () => {
+      if (!this.soundManager.bgMusicStarted) {
+        this.soundManager.playBackgroundMusic();
+        this.soundManager.bgMusicStarted = true;
+      }
+    });
   }
 
   addEntity(entity) {
