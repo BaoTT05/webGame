@@ -64,7 +64,7 @@ class Goblin extends Monster {
         5,           // frameCount
         0.15,        // frameDuration
         0,           // framePadding
-        false,       // reverse
+        true,       // reverse
         true         // loop
       );
     }
