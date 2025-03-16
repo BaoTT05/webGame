@@ -373,23 +373,23 @@ class Game {
           case "easy":
             this.mazeRows = 20;
             this.mazeCols = 20;
-            this.meleeDamage = 20;
-            this.goblinGroupCount = 30;
-            this.slimeCount = 30;
+            this.meleeDamage = 50;
+            this.goblinGroupCount = 20;
+            this.slimeCount = 20;
             break;
           case "medium":
             this.mazeRows = 40;
             this.mazeCols = 40;
-            this.meleeDamage = 10;
-            this.goblinGroupCount = 65;
-            this.slimeCount = 65;
+            this.meleeDamage = 30;
+            this.goblinGroupCount = 80;
+            this.slimeCount = 80;
             break;
           case "hard":
             this.mazeRows = 55;
             this.mazeCols = 55;
-            this.meleeDamage = 5;
-            this.goblinGroupCount = 100;
-            this.slimeCount = 100;
+            this.meleeDamage = 15;
+            this.goblinGroupCount = 130;
+            this.slimeCount = 130;
             break;
         }
         this.initGameWorld();
